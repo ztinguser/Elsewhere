@@ -2,7 +2,10 @@ from contextlib import asynccontextmanager
 
 import uvicorn
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException
 
+from backend.api.errors import http_error, server_error, validation_error
 from backend.api.health import router as health_router
 from backend.config import Settings
 
@@ -21,6 +24,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         lifespan=lifespan,
     )
     app.state.settings = settings if settings is not None else Settings()
+
+    app.add_exception_handler(HTTPException, http_error)
+    app.add_exception_handler(RequestValidationError, validation_error)
+    app.add_exception_handler(Exception, server_error)
+
     app.include_router(health_router, prefix="/api")
     return app
 
