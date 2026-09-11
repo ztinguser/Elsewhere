@@ -9,6 +9,7 @@ from starlette.exceptions import HTTPException
 from backend.api.errors import http_error, validation_error
 from backend.api.health import router as health_router
 from backend.api.middleware import track_request
+from backend.api.security import check_source
 from backend.config import Settings
 
 
@@ -29,6 +30,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app.add_exception_handler(HTTPException, http_error)
     app.add_exception_handler(RequestValidationError, validation_error)
+
+    app.middleware("http")(check_source)
     app.middleware("http")(track_request)
 
     app.include_router(health_router, prefix="/api")
