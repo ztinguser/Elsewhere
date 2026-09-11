@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 
 import uvicorn
@@ -5,8 +6,9 @@ from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException
 
-from backend.api.errors import http_error, server_error, validation_error
+from backend.api.errors import http_error, validation_error
 from backend.api.health import router as health_router
+from backend.api.middleware import track_request
 from backend.config import Settings
 
 
@@ -27,11 +29,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app.add_exception_handler(HTTPException, http_error)
     app.add_exception_handler(RequestValidationError, validation_error)
-    app.add_exception_handler(Exception, server_error)
+    app.middleware("http")(track_request)
 
     app.include_router(health_router, prefix="/api")
     return app
 
 
 def main() -> None:
+    logger = logging.getLogger("elsewhere")
+    logger.setLevel(logging.INFO)
+    logger.addHandler(logging.StreamHandler())
+    logger.propagate = False
+
     uvicorn.run(create_app(), host="127.0.0.1", port=8000, access_log=False)
