@@ -9,9 +9,10 @@ from backend.storage.schema.v003_versions import STATEMENTS as V003
 from backend.storage.schema.v004_branches import STATEMENTS as V004
 from backend.storage.schema.v005_events import STATEMENTS as V005
 from backend.storage.schema.v006_chapters import STATEMENTS as V006
+from backend.storage.schema.v007_reading import STATEMENTS as V007
 
 
-MIGRATIONS = [V001, V002, V003, V004, V005, V006]
+MIGRATIONS = [V001, V002, V003, V004, V005, V006, V007]
 
 
 def initialize_database(path: Path) -> None:
