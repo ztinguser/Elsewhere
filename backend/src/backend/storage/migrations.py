@@ -6,9 +6,10 @@ from backend.storage.database import connect
 from backend.storage.schema.v001_drafts import STATEMENTS as V001
 from backend.storage.schema.v002_facts import STATEMENTS as V002
 from backend.storage.schema.v003_versions import STATEMENTS as V003
+from backend.storage.schema.v004_branches import STATEMENTS as V004
 
 
-MIGRATIONS = [V001, V002, V003]
+MIGRATIONS = [V001, V002, V003, V004]
 
 
 def initialize_database(path: Path) -> None:
