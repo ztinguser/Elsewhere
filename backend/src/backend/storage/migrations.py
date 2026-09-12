@@ -5,9 +5,10 @@ from pathlib import Path
 from backend.storage.database import connect
 from backend.storage.schema.v001_drafts import STATEMENTS as V001
 from backend.storage.schema.v002_facts import STATEMENTS as V002
+from backend.storage.schema.v003_versions import STATEMENTS as V003
 
 
-MIGRATIONS = [V001, V002]
+MIGRATIONS = [V001, V002, V003]
 
 
 def initialize_database(path: Path) -> None:
