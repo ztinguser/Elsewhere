@@ -3,21 +3,11 @@ from contextlib import closing
 from pathlib import Path
 
 from backend.storage.database import connect
+from backend.storage.schema.v001_drafts import STATEMENTS as V001
+from backend.storage.schema.v002_facts import STATEMENTS as V002
 
 
-MIGRATIONS = [
-    (
-        """
-        CREATE TABLE drafts (
-            id TEXT PRIMARY KEY NOT NULL,
-            content TEXT NOT NULL DEFAULT '',
-            revision INTEGER NOT NULL DEFAULT 1 CHECK (revision >= 1),
-            created_at TEXT NOT NULL,
-            updated_at TEXT NOT NULL
-        )
-        """,
-    ),
-]
+MIGRATIONS = [V001, V002]
 
 
 def initialize_database(path: Path) -> None:
