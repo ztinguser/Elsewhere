@@ -11,11 +11,16 @@ from backend.api.health import router as health_router
 from backend.api.middleware import track_request
 from backend.api.security import check_source
 from backend.config import Settings
+from backend.storage.migrations import initialize_database
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    app.state.settings.data_dir.mkdir(parents=True, exist_ok=True)
+    data_dir = app.state.settings.data_dir
+    app.state.life_db = data_dir / "life.sqlite"
+    app.state.workflow_db = data_dir / "workflow.sqlite"
+
+    initialize_database(app.state.life_db)
     yield
 
 

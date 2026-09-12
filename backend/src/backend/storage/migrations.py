@@ -1,0 +1,39 @@
+import sqlite3
+from contextlib import closing
+from pathlib import Path
+
+from backend.storage.database import connect
+
+
+MIGRATIONS = [
+    (
+        """
+        CREATE TABLE drafts (
+            id TEXT PRIMARY KEY NOT NULL,
+            content TEXT NOT NULL DEFAULT '',
+            revision INTEGER NOT NULL DEFAULT 1 CHECK (revision >= 1),
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+        )
+        """,
+    ),
+]
+
+
+def initialize_database(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    with closing(sqlite3.connect(path, autocommit=True)) as connection:
+        connection.execute("PRAGMA journal_mode = WAL")
+
+    with connect(path) as connection:
+        version = connection.execute("PRAGMA user_version").fetchone()[0]
+
+        if version > len(MIGRATIONS):
+            raise RuntimeError("数据库版本高于当前程序支持的版本")
+
+        for index in range(version, len(MIGRATIONS)):
+            for statement in MIGRATIONS[index]:
+                connection.execute(statement)
+
+            connection.execute(f"PRAGMA user_version = {index + 1}")
