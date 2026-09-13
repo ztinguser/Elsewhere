@@ -6,6 +6,11 @@ description = "Elsewhere"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.141.1",
+    "httpx>=0.28.1",
+    "langchain>=1.4.0",
+    "langchain-deepseek>=1.1.0",
+    "langsmith>=0.12.4",
+    "openai>=3.13.0",
     "pydantic-settings>=2.15.0",
     "uvicorn>=0.52.4",
 ]
