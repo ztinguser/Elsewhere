@@ -75,3 +75,10 @@ class DeepSeekClient:
             }
 
         return ModelReply(content=content, model=model_name, usage=usage)
+
+    
+    async def aclose(self) -> None:
+        try:
+            await self._model.root_async_client.close()
+        finally:
+            self._model.root_client.close()

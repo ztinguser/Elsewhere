@@ -10,8 +10,10 @@ from backend.api.errors import http_error, validation_error
 from backend.api.health import router as health_router
 from backend.api.middleware import track_request
 from backend.api.security import check_source
+from backend.api.model import router as model_router
 from backend.config import Settings
 from backend.storage.migrations import initialize_database
+from backend.credentials.store import CredentialStore
 
 
 @asynccontextmanager
@@ -21,7 +23,12 @@ async def lifespan(app: FastAPI):
     app.state.workflow_db = data_dir / "workflow.sqlite"
 
     initialize_database(app.state.life_db)
-    yield
+    app.state.credentials = CredentialStore()
+
+    try:
+        yield
+    finally:
+        app.state.credentials.release()
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -39,7 +46,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.middleware("http")(check_source)
     app.middleware("http")(track_request)
 
-    app.include_router(health_router, prefix="/api")
+    app.include_router(health_router)
+    app.include_router(model_router)
     return app
 
 
