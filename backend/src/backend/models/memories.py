@@ -1,4 +1,4 @@
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class MemoryInput(BaseModel):
@@ -11,3 +11,7 @@ class MemoryInput(BaseModel):
         if not value.strip():
             raise ValueError("时间和事件内容不能为空")
         return value
+
+
+class MemoryUpdate(MemoryInput):
+    expected_revision: int = Field(ge=1)
