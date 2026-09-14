@@ -11,6 +11,7 @@ from backend.api.health import router as health_router
 from backend.api.middleware import track_request
 from backend.api.security import check_source
 from backend.api.model import router as model_router
+from backend.api.drafts import router as drafts_router
 from backend.config import Settings
 from backend.storage.migrations import initialize_database
 from backend.credentials.store import CredentialStore
@@ -48,6 +49,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app.include_router(health_router)
     app.include_router(model_router)
+    app.include_router(drafts_router)
     return app
 
 

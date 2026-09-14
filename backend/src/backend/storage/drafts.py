@@ -7,6 +7,7 @@ def save_draft(
     draft_id: str,
     content: str,
     *,
+    time_text: str,
     expected_revision: int,
 ) -> int:
     now = datetime.now(UTC).isoformat()
@@ -14,20 +15,23 @@ def save_draft(
     if expected_revision == 0:
         result = connection.execute(
             """
-            INSERT INTO drafts (id, content, created_at, updated_at)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO drafts (
+                id, time_text, content, created_at, updated_at
+            )
+            VALUES (?, ?, ?, ?, ?)
             ON CONFLICT (id) DO NOTHING
             """,
-            (draft_id, content, now, now),
+            (draft_id, time_text, content, now, now),
         )
     else:
         result = connection.execute(
             """
             UPDATE drafts
-            SET content = ?, revision = revision + 1, updated_at = ?
+            SET time_text = ?, content = ?,
+                revision = revision + 1, updated_at = ?
             WHERE id = ? AND revision = ?
             """,
-            (content, now, draft_id, expected_revision),
+            (time_text, content, now, draft_id, expected_revision),
         )
 
     if result.rowcount != 1:
@@ -44,3 +48,17 @@ def get_draft(
         (draft_id,),
     ).fetchone()
     return dict(row) if row else None
+
+
+def delete_draft(
+    connection: sqlite3.Connection,
+    draft_id: str,
+    *,
+    expected_revision: int,
+) -> None:
+    result = connection.execute(
+        "DELETE FROM drafts WHERE id = ? AND revision = ?",
+        (draft_id, expected_revision),
+    )
+    if result.rowcount != 1:
+        raise ValueError("草稿不存在或版本已变化，请重新读取")

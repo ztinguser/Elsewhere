@@ -1,0 +1,3 @@
+STATEMENTS = (
+    "ALTER TABLE drafts ADD COLUMN time_text TEXT NOT NULL DEFAULT ''",
+)
