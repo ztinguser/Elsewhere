@@ -15,3 +15,7 @@ class MemoryInput(BaseModel):
 
 class MemoryUpdate(MemoryInput):
     expected_revision: int = Field(ge=1)
+
+
+class MemoryOrder(BaseModel):
+    ids: list[str]

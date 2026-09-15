@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, Query, Request, Response
-from backend.models.memories import MemoryInput, MemoryUpdate
+from backend.models.memories import MemoryInput, MemoryOrder, MemoryUpdate
+from backend.storage.memory_order import reorder_memories
 from backend.storage.database import connect
 from backend.storage.memories import (
     create_memory,
@@ -34,6 +35,17 @@ def read_memory(memory_id: str, request: Request) -> dict:
         raise HTTPException(404, "回忆不存在")
 
     return memory
+
+
+@router.put("/order", status_code=204)
+def save_memory_order(data: MemoryOrder, request: Request) -> Response:
+    try:
+        with connect(request.app.state.life_db) as connection:
+            reorder_memories(connection, data.ids)
+    except ValueError as exc:
+        raise HTTPException(409, str(exc)) from None
+
+    return Response(status_code=204)
 
 
 @router.put("/{memory_id}")

@@ -16,17 +16,22 @@ def create_memory(
     connection.execute(
         """
         INSERT INTO fact_nodes (
-            id, time_text, content, kind, status, created_at, updated_at
+            id, time_text, content, kind, status,
+            created_at, updated_at, position
         )
-        VALUES (?, ?, ?, 'event', 'confirmed', ?, ?)
+        VALUES (
+            ?, ?, ?, 'event', 'confirmed', ?, ?,
+            (
+                SELECT COALESCE(MAX(position), 0) + 1
+                FROM fact_nodes
+                WHERE status = 'confirmed'
+            )
+        )
         """,
         (memory_id, data.time_text, data.content, now, now),
     )
 
-    return {
-        "id": memory_id,
-        "revision": 1
-    }
+    return {"id": memory_id, "revision": 1}
 
 
 def get_memory(
@@ -35,7 +40,8 @@ def get_memory(
 ) -> dict | None:
     row = connection.execute(
         """
-        SELECT id, time_text, content, revision, created_at, updated_at
+        SELECT id, time_text, content, position,
+               revision, created_at, updated_at
         FROM fact_nodes
         WHERE id = ? AND status = 'confirmed'
         """,
@@ -47,10 +53,11 @@ def get_memory(
 def list_memories(connection: sqlite3.Connection) -> list[dict]:
     rows = connection.execute(
         """
-        SELECT id, time_text, content, revision, created_at, updated_at
+        SELECT id, time_text, content, position,
+               revision, created_at, updated_at
         FROM fact_nodes
         WHERE status = 'confirmed'
-        ORDER BY created_at DESC, id
+        ORDER BY position, id
         """
     )
     return [dict(row) for row in rows]

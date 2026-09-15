@@ -13,11 +13,12 @@ from backend.storage.schema.v007_reading import STATEMENTS as V007
 from backend.storage.schema.v008_tasks import STATEMENTS as V008
 from backend.storage.schema.v009_draft_time import STATEMENTS as V009
 from backend.storage.schema.v010_memory_revision import STATEMENTS as V010
+from backend.storage.schema.v011_memory_position import STATEMENTS as V011
 
 
 MIGRATIONS = [
     V001, V002, V003, V004, V005,
-    V006, V007, V008, V009, V010,
+    V006, V007, V008, V009, V010, V011,
 ]
 
 
