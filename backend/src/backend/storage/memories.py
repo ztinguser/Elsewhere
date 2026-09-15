@@ -50,15 +50,24 @@ def get_memory(
     return dict(row) if row else None
 
 
-def list_memories(connection: sqlite3.Connection) -> list[dict]:
+def list_memories(
+    connection: sqlite3.Connection,
+    query: str = "",
+) -> list[dict]:
+    query = query.strip()
     rows = connection.execute(
         """
         SELECT id, time_text, content, position,
                revision, created_at, updated_at
         FROM fact_nodes
         WHERE status = 'confirmed'
+          AND (
+              instr(time_text, ?) > 0
+              OR instr(content, ?) > 0
+          )
         ORDER BY position, id
-        """
+        """,
+        (query, query),
     )
     return [dict(row) for row in rows]
 

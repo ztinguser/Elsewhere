@@ -21,9 +21,9 @@ def add_memory(data: MemoryInput, request: Request) -> dict:
 
 
 @router.get("")
-def read_memories(request: Request) -> list[dict]:
+def read_memories(request: Request, q: str = "") -> list[dict]:
     with connect(request.app.state.life_db) as connection:
-        return list_memories(connection)
+        return list_memories(connection, query=q)
 
 
 @router.get("/{memory_id}")
