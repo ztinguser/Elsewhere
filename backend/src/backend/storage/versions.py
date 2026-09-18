@@ -3,24 +3,15 @@ import sqlite3
 from datetime import UTC, datetime
 from uuid import uuid4
 
+from backend.storage.life_archive import get_archive
+from backend.storage.memories import list_memories
+
 
 def create_fact_version(connection: sqlite3.Connection) -> str:
     snapshot = {
-        "format_version": 1,
-        "fragments": [
-            dict(row)
-            for row in connection.execute("SELECT * FROM fragments ORDER BY id")
-        ],
-        "facts": [
-            dict(row)
-            for row in connection.execute("SELECT * FROM fact_nodes ORDER BY id")
-        ],
-        "sources": [
-            dict(row)
-            for row in connection.execute(
-                "SELECT * FROM fact_sources ORDER BY fact_id, fragment_id"
-            )
-        ],
+        "format_version": 2,
+        "archive_revision": get_archive(connection)["revision"],
+        "facts": list_memories(connection),
     }
 
     version_id = uuid4().hex

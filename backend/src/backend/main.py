@@ -15,6 +15,7 @@ from backend.api.drafts import router as drafts_router
 from backend.api.memories import router as memories_router
 from backend.api.polishing import router as polishing_router
 from backend.api.life_archive import router as life_archive_router
+from backend.api.branches import router as branches_router
 from backend.config import Settings
 from backend.storage.migrations import initialize_database
 from backend.credentials.store import CredentialStore
@@ -56,6 +57,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(polishing_router)
     app.include_router(memories_router)
     app.include_router(life_archive_router)
+    app.include_router(branches_router)
     return app
 
 
