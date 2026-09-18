@@ -3,6 +3,7 @@ from datetime import UTC, datetime
 from uuid import uuid4
 
 from backend.models.memories import MemoryInput
+from backend.storage.life_archive import advance_archive_revision
 
 
 # 新建正式回忆存储文件
@@ -30,6 +31,7 @@ def create_memory(
         """,
         (memory_id, data.time_text, data.content, now, now),
     )
+    advance_archive_revision(connection)
 
     return {"id": memory_id, "revision": 1}
 
@@ -99,9 +101,11 @@ def update_memory(
     if result.rowcount != 1:
         raise ValueError("回忆不存在或版本已变化，请重新读取")
 
+    advance_archive_revision(connection)
+
     return {
         "id": memory_id,
-        "revision": expected_revision + 1
+        "revision": expected_revision + 1,
     }
 
 
@@ -125,3 +129,5 @@ def delete_memory(
 
     if result.rowcount != 1:
         raise ValueError("回忆不存在或版本已变化，请重新读取")
+
+    advance_archive_revision(connection)
