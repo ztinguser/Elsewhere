@@ -16,6 +16,7 @@ from backend.api.memories import router as memories_router
 from backend.api.polishing import router as polishing_router
 from backend.api.life_archive import router as life_archive_router
 from backend.api.branches import router as branches_router
+from backend.api.fork_plans import router as fork_plans_router
 from backend.config import Settings
 from backend.storage.migrations import initialize_database
 from backend.credentials.store import CredentialStore
@@ -29,6 +30,7 @@ async def lifespan(app: FastAPI):
 
     initialize_database(app.state.life_db)
     app.state.credentials = CredentialStore()
+    app.state.generating_plans = set()
 
     try:
         yield
@@ -58,6 +60,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(memories_router)
     app.include_router(life_archive_router)
     app.include_router(branches_router)
+    app.include_router(fork_plans_router)
     return app
 
 
