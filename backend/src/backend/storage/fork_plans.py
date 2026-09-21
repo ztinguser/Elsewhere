@@ -52,3 +52,39 @@ def save_initial_plan(
         ),
     )
     return get_fork_plan(connection, branch_id)
+
+
+def save_answered_plan(
+    connection: sqlite3.Connection,
+    branch_id: str,
+    *,
+    answers: list[dict],
+    result: dict,
+    expected_revision: int,
+) -> dict:
+    plan = result["plan"]
+    if plan["questions"]:
+        raise ValueError("整理后的方案不能追加问卷")
+
+    status = "blocked" if plan["blockers"] else "waiting_confirmation"
+    updated = connection.execute(
+        """
+        UPDATE fork_plans
+        SET answers = ?, final_result = ?, status = ?,
+            revision = revision + 1, updated_at = ?
+        WHERE branch_id = ? AND revision = ?
+            AND status = 'waiting_input'
+        """,
+        (
+            json.dumps(answers, ensure_ascii=False),
+            json.dumps(result, ensure_ascii=False),
+            status,
+            datetime.now(UTC).isoformat(),
+            branch_id,
+            expected_revision,
+        ),
+    )
+    if updated.rowcount != 1:
+        raise ValueError("方案已变化或不再等待回答，请重新读取")
+
+    return get_fork_plan(connection, branch_id)

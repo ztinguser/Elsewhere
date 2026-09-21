@@ -5,28 +5,20 @@ from pydantic import ValidationError
 from backend.llm.client import ModelClient, ModelError
 from backend.models.fork_plan import ForkPlan
 from backend.prompts.fork_plan import SYSTEM_PROMPT
+from backend.prompts.fork_plan_final import SYSTEM_PROMPT as FINAL_PROMPT
 
 
 async def generate_fork_plan(
     client: ModelClient,
     branch: dict,
     snapshot: dict,
+    *,
+    initial_plan: dict | None = None,
+    answers: list[dict] | None = None,
 ) -> dict:
-    """根据分支绑定的资料快照生成初始分叉方案，并检查输出结构与节点引用。
+    if (initial_plan is None) != (answers is None):
+        raise ValueError("原始方案和问卷答案必须一起提供")
 
-        Args:
-            client: 模型调用客户端，由调用方负责创建和关闭。
-            branch: 已保存的分支，包含分叉节点、替代决定和整体推演终点。
-            snapshot: 该分支绑定的固定事实快照，其中 facts 保存回忆列表。
-
-        Returns:
-            包含 plan、model 和 usage 的字典，分别为分叉方案、
-            实际响应模型标识和可获得的用量。plan 包含内部提问理由，
-            不能直接作为面向页面的响应。
-
-        Raises:
-            ModelError: 模型调用失败、输出结构不正确，或引用了快照之外的节点。
-        """
     facts = [
         {
             "id": fact["id"],
@@ -41,9 +33,14 @@ async def generate_fork_plan(
         "target_date": branch["target_date"],
         "facts": facts,
     }
+    system = SYSTEM_PROMPT
+    if initial_plan is not None:
+        context["initial_plan"] = initial_plan
+        context["answers"] = answers
+        system = FINAL_PROMPT
 
     reply = await client.generate(
-        system=SYSTEM_PROMPT,
+        system=system,
         prompt=json.dumps(context, ensure_ascii=False),
         json_output=True,
     )
@@ -66,6 +63,22 @@ async def generate_fork_plan(
         raise ModelError(
             "MODEL_INVALID_OUTPUT", "分叉方案引用了资料快照之外的节点"
         )
+
+    if initial_plan is not None:
+        if plan.questions:
+            raise ModelError(
+                "MODEL_INVALID_OUTPUT", "整理后的方案不能追加问卷"
+            )
+
+        adopted = {
+            item["assumption"]
+            for item in answers
+            if item["use_assumption"]
+        }
+        if not adopted.issubset(set(plan.assumptions)):
+            raise ModelError(
+                "MODEL_INVALID_OUTPUT", "最终方案遗漏或改写了已采用的假设"
+            )
 
     return {
         "plan": plan.model_dump(),
