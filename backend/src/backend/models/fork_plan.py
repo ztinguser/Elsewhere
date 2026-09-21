@@ -29,3 +29,7 @@ class ForkPlan(BaseModel):
     questions: list[ForkQuestion] = Field(max_length=3)
     # 无法靠合理假设解决、需要先修正的问题
     blockers: list[str]
+
+
+class ForkPlanConfirm(BaseModel):
+    expected_revision: int = Field(ge=1)

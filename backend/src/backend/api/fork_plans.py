@@ -5,8 +5,10 @@ from backend.api.fork_plan_view import public_fork_plan
 from backend.llm.client import ModelError
 from backend.llm.deepseek import DeepSeekClient
 from backend.llm.fork_plan import generate_fork_plan
+from backend.models.fork_plan import ForkPlanConfirm
 from backend.storage.branches import get_branch
 from backend.storage.database import connect
+from backend.storage.fork_confirmation import confirm_fork_plan
 from backend.storage.fork_plans import get_fork_plan, save_initial_plan
 from backend.storage.versions import get_fact_version
 
@@ -63,3 +65,22 @@ async def create_fork_plan(branch_id: str, request: Request):
         return error_response(status, exc.code, str(exc))
     finally:
         state.generating_plans.discard(branch_id)
+
+
+@router.post("/{branch_id}/plan/confirm")
+def confirm_plan(
+    branch_id: str,
+    data: ForkPlanConfirm,
+    request: Request,
+) -> dict:
+    try:
+        with connect(request.app.state.life_db) as connection:
+            record = confirm_fork_plan(
+                connection,
+                branch_id,
+                expected_revision=data.expected_revision,
+            )
+    except ValueError as exc:
+        raise HTTPException(409, str(exc)) from None
+
+    return public_fork_plan(record)
