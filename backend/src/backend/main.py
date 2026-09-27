@@ -18,6 +18,10 @@ from backend.api.life_archive import router as life_archive_router
 from backend.api.branches import router as branches_router
 from backend.api.fork_plans import router as fork_plans_router
 from backend.api.fork_answers import router as fork_answers_router
+from backend.api.simulation import router as simulation_router
+from backend.api.simulation_read import router as simulation_read_router
+from backend.api.decisions import router as decisions_router
+from backend.api.simulation_retry import router as simulation_retry_router
 from backend.config import Settings
 from backend.storage.migrations import initialize_database
 from backend.credentials.store import CredentialStore
@@ -63,6 +67,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(branches_router)
     app.include_router(fork_plans_router)
     app.include_router(fork_answers_router)
+    app.include_router(simulation_router)
+    app.include_router(simulation_read_router)
+    app.include_router(decisions_router)
+    app.include_router(simulation_retry_router)
     return app
 
 

@@ -38,13 +38,32 @@ def fail_stage_task(
     *,
     code: str,
     message: str,
+    expected_status: str = "running",
 ) -> bool:
     result = connection.execute(
         """
         UPDATE tasks
         SET status = 'failed', error_code = ?, error_message = ?, updated_at = ?
-        WHERE id = ? AND status = 'running'
+        WHERE id = ? AND status = ?
         """,
-        (code, message, datetime.now(UTC).isoformat(), task_id),
+        (code, message, datetime.now(UTC).isoformat(), task_id, expected_status),
     )
     return result.rowcount == 1
+
+
+def get_latest_stage_task(
+    connection: sqlite3.Connection,
+    branch_id: str,
+    position: int,
+) -> dict | None:
+    row = connection.execute(
+        """
+        SELECT id FROM tasks
+        WHERE branch_id = ? AND kind = 'generate_branch'
+          AND json_extract(input_data, '$.position') = ?
+        ORDER BY created_at DESC, rowid DESC
+        LIMIT 1
+        """,
+        (branch_id, position),
+    ).fetchone()
+    return get_task(connection, row["id"]) if row is not None else None
