@@ -1,8 +1,10 @@
+import json
 import sqlite3
 from datetime import UTC, datetime
 from uuid import uuid4
 
 from backend.models.simulation import StageData, StageReview
+from backend.models.stage_audit import StageAudit
 from backend.storage.branches import get_branch
 from backend.storage.events import create_event
 from backend.storage.stages import get_stage, list_stages
@@ -15,11 +17,12 @@ def publish_stage(
     position: int,
     data: StageData,
     review: StageReview,
+    audit: StageAudit | None = None,
 ) -> dict:
     existing = get_stage(connection, branch_id, position)
     if existing is not None:
         return existing
-    if not review.approved:
+    if not review.approved or (audit is not None and not audit.to_review().approved):
         raise ValueError("校验未通过，不能保存阶段")
 
     branch = get_branch(connection, branch_id)
@@ -47,6 +50,9 @@ def publish_stage(
 
     stage_id = uuid4().hex
     now = datetime.now(UTC).isoformat()
+    saved_review = review.model_dump()
+    if audit is not None:
+        saved_review["audit"] = audit.model_dump()
     connection.execute(
         """
         INSERT INTO simulation_stages (
@@ -57,7 +63,7 @@ def publish_stage(
         """,
         (
             stage_id, branch_id, position, data.end_time_text,
-            data.end_reason, review.model_dump_json(), now,
+            data.end_reason, json.dumps(saved_review, ensure_ascii=False), now,
         ),
     )
 

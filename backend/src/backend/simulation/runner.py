@@ -32,6 +32,7 @@ async def run_stage(client: ModelClient, context: dict) -> dict:
             return {
                 "stage": data.model_dump(),
                 "review": review.model_dump(),
+                "audit": reviewed["audit"],
                 "calls": calls,
             }
 

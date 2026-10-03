@@ -3,7 +3,8 @@ import json
 from pydantic import ValidationError
 
 from backend.llm.client import ModelClient, ModelError
-from backend.models.simulation import StageData, StageReview
+from backend.models.simulation import StageData
+from backend.models.stage_audit import StageAudit
 from backend.prompts.stage_review import SYSTEM_PROMPT
 
 
@@ -22,14 +23,15 @@ async def review_stage(
     )
 
     try:
-        review = StageReview.model_validate_json(reply.content)
+        audit = StageAudit.model_validate_json(reply.content)
     except ValidationError:
         raise ModelError(
             "MODEL_INVALID_OUTPUT", "模型返回的阶段评审格式不正确"
         ) from None
 
     return {
-        "review": review.model_dump(),
+        "review": audit.to_review().model_dump(),
+        "audit": audit.model_dump(),
         "model": reply.model,
         "usage": reply.usage,
     }

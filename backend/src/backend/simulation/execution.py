@@ -2,6 +2,7 @@ from pathlib import Path
 
 from backend.llm.client import ModelClient, ModelError
 from backend.models.simulation import StageData, StageReview
+from backend.models.stage_audit import StageAudit
 from backend.simulation.runner import run_stage
 from backend.storage.database import connect
 from backend.storage.simulation_context import build_simulation_context
@@ -57,6 +58,7 @@ async def execute_stage_task(
                     position=position,
                     data=StageData.model_validate(result["stage"]),
                     review=StageReview.model_validate(result["review"]),
+                    audit=StageAudit.model_validate(result["audit"]),
                 )
             return get_task(connection, task_id)
 
