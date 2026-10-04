@@ -17,6 +17,11 @@ def get_narrative(connection: sqlite3.Connection, stage_id: str, kind: str) -> d
     return get_chapter_version(connection, row["id"]) if row else None
 
 
+def get_narrative_attempt(connection, draft_key):
+    row = connection.execute("SELECT id FROM chapter_versions WHERE draft_key = ?", (draft_key,)).fetchone()
+    return get_chapter_version(connection, row["id"]) if row else None
+
+
 def require_chapters(connection: sqlite3.Connection, branch_id: str, through: int) -> None:
     missing = connection.execute(
         """SELECT s.id FROM simulation_stages s WHERE s.branch_id = ? AND s.position <= ?
@@ -30,7 +35,12 @@ def require_chapters(connection: sqlite3.Connection, branch_id: str, through: in
         raise ValueError("请先生成并发布此前阶段的文学章节")
 
 
-def save_narrative_draft(connection, branch_id, position, kind, draft: NarrativeText, reply):
+def save_narrative_draft(connection, branch_id, position, kind, draft: NarrativeText, reply,
+                         *, draft_key: str | None = None):
+    if draft_key:
+        existing = connection.execute("SELECT id FROM chapter_versions WHERE draft_key = ?", (draft_key,)).fetchone()
+        if existing:
+            return existing["id"]
     stage = get_stage(connection, branch_id, position)
     if stage is None:
         raise ValueError("只能为有效阶段生成文学正文")
@@ -55,14 +65,17 @@ def save_narrative_draft(connection, branch_id, position, kind, draft: Narrative
         (stage["id"], kind, branch_id, chapter_position),
     )
     connection.execute(
-        "UPDATE chapter_versions SET outline = ?, prompt_version = ?, generation = ? WHERE id = ?",
+        "UPDATE chapter_versions SET outline = ?, prompt_version = ?, generation = ?, draft_key = ? WHERE id = ?",
         (json.dumps(draft.outline, ensure_ascii=False), VERSION,
-         json.dumps({"model": reply.model, "usage": reply.usage}), version_id),
+         json.dumps({"model": reply.model, "usage": reply.usage}), draft_key, version_id),
     )
     return version_id
 
 
 def finish_narrative(connection, version_id, review: NarrativeReview, reply):
+    status = connection.execute("SELECT status FROM chapter_versions WHERE id = ?", (version_id,)).fetchone()
+    if status and status["status"] in ("published", "rejected"):
+        return False
     connection.execute(
         "UPDATE chapter_versions SET review = ? WHERE id = ?",
         (json.dumps({**review.model_dump(), "model": reply.model, "usage": reply.usage},
@@ -71,6 +84,7 @@ def finish_narrative(connection, version_id, review: NarrativeReview, reply):
     record_chapter_review(connection, version_id, approved=not review.issues)
     if not review.issues:
         publish_chapter(connection, version_id)
+    return True
 
 
 def list_narratives(connection, branch_id: str) -> list[dict]:

@@ -53,11 +53,12 @@ async def create_fork_plan(branch_id: str, request: Request):
 
 
 @router.post("/{branch_id}/plan/confirm")
-def confirm_plan(branch_id: str, data: ForkPlanConfirm, request: Request) -> dict:
+async def confirm_plan(branch_id: str, data: ForkPlanConfirm, request: Request) -> dict:
     try:
         with connect(request.app.state.life_db) as connection:
             record = confirm_fork_plan(connection, branch_id, expected_revision=data.expected_revision)
             finish_wait(connection, branch_id, "plan_confirmation", branch_id)
     except ValueError as exc:
         raise HTTPException(409, str(exc)) from None
+    request.app.state.worker.notify()
     return public_fork_plan(record)

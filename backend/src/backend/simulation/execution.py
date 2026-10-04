@@ -12,16 +12,19 @@ from backend.storage.stage_publication import publish_stage
 from backend.storage.stages import get_stage, get_stage_detail
 from backend.storage.task_queue import wait_for_input
 from backend.storage.task_events import record_event
-from backend.storage.tasks import get_task, update_task_status
+from backend.storage.tasks import get_task, is_running, update_task_status
 
 
 async def execute_stage_task(
     path: Path,
     task_id: str,
     client: ModelClient,
+    workflow=None,
 ) -> dict:
     with connect(path) as connection:
         task = get_task(connection, task_id)
+        if workflow and task["execution_id"] != workflow.task["execution_id"]:
+            return task
         if (
             task is None
             or task["kind"] != "generate_branch"
@@ -45,12 +48,13 @@ async def execute_stage_task(
                     raise ModelError("STAGE_STATE_CHANGED", "任务对应的阶段已经变化")
 
         if existing is None:
-            result = await run_stage(client, context)
+            result = await run_stage(client, context, workflow=workflow)
 
         with connect(path) as connection:
             active = update_task_status(
                 connection, task_id,
                 expected_status="running", status="running", stage="narrative",
+                execution_id=task["execution_id"],
             )
             if not active:
                 return get_task(connection, task_id)
@@ -64,8 +68,10 @@ async def execute_stage_task(
                     audit=StageAudit.model_validate(result["audit"]),
                 )
                 record_event(connection, task_id, "stage_published", {"position": position})
-        await write_stage_narratives(path, task_id, client)
+        await write_stage_narratives(path, task_id, client, workflow=workflow)
         with connect(path) as connection:
+            if not is_running(connection, task):
+                return get_task(connection, task_id)
             stage = get_stage_detail(connection, task["branch_id"], position)
             if stage["choice"] and stage["choice"]["decision"] is None:
                 wait_for_input(connection, task_id, "simulation_choice", stage["choice"]["id"])
@@ -80,5 +86,6 @@ async def execute_stage_task(
         code = exc.code if isinstance(exc, ModelError) else "STAGE_EXECUTION_FAILED"
         message = str(exc) if isinstance(exc, ModelError) else "阶段执行失败，请重试"
         with connect(path) as connection:
-            fail_stage_task(connection, task_id, code=code, message=message)
+            if is_running(connection, task):
+                fail_stage_task(connection, task_id, code=code, message=message)
         raise

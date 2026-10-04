@@ -4,7 +4,7 @@ from backend.storage.database import connect
 from backend.storage.fork_plans import get_fork_plan, save_answered_plan, save_initial_plan
 from backend.storage.simulation_tasks import fail_stage_task
 from backend.storage.task_queue import wait_for_input
-from backend.storage.tasks import get_task, update_task_status
+from backend.storage.tasks import is_running, update_task_status
 from backend.storage.versions import get_fact_version
 
 
@@ -20,29 +20,32 @@ def finish_plan_task(connection, task_id, record):
         wait_for_input(connection, task_id, reason, record["branch_id"])
 
 
-async def execute_fork_task(path, task, client):
+async def execute_fork_task(path, task, client, workflow=None):
     task_id, branch_id = task["id"], task["branch_id"]
     data = task["input_data"]
     with connect(path) as connection:
         if not update_task_status(connection, task_id, expected_status="queued",
-                                  status="running", stage=data["operation"]):
+                                  status="running", stage=data["operation"],
+                                  execution_id=task["execution_id"]):
             return
         branch = get_branch(connection, branch_id)
         snapshot = get_fact_version(connection, branch["fact_version_id"])
         record = get_fork_plan(connection, branch_id)
-        if data["operation"] == "fork_plan" and record:
+        if record and (data["operation"] == "fork_plan" or record["answers"] == data.get("answers")):
             finish_plan_task(connection, task_id, record)
             return
 
-    if data["operation"] == "fork_answers":
-        result = await generate_fork_plan(client, branch, snapshot,
-                                         initial_plan=record["initial_result"]["plan"],
-                                         answers=data["answers"])
-    else:
-        result = await generate_fork_plan(client, branch, snapshot)
+    async def generate():
+        if data["operation"] == "fork_answers":
+            return await generate_fork_plan(client, branch, snapshot,
+                                           initial_plan=record["initial_result"]["plan"],
+                                           answers=data["answers"])
+        return await generate_fork_plan(client, branch, snapshot)
+
+    result = await workflow.step("plan", generate) if workflow else await generate()
 
     with connect(path) as connection:
-        if get_task(connection, task_id)["status"] != "running":
+        if not is_running(connection, task):
             return
         if data["operation"] == "fork_answers":
             record = save_answered_plan(connection, branch_id, answers=data["answers"],

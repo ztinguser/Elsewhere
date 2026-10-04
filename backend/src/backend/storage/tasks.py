@@ -1,6 +1,10 @@
 import json
 import sqlite3
 from datetime import UTC, datetime
+from uuid import uuid4
+
+
+WORKFLOW_VERSION = "2"
 
 
 def create_task(
@@ -25,9 +29,10 @@ def create_task(
     connection.execute(
         """
         INSERT INTO tasks (
-            id, kind, branch_id, input_data, created_at, updated_at
+            id, kind, branch_id, input_data, created_at, updated_at,
+            workflow_version, execution_id
         )
-        VALUES (?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
             task_id,
@@ -36,6 +41,8 @@ def create_task(
             json.dumps(input_data, ensure_ascii=False),
             now,
             now,
+            WORKFLOW_VERSION,
+            uuid4().hex,
         ),
     )
     return task_id
@@ -63,12 +70,14 @@ def update_task_status(
     expected_status: str,
     status: str,
     stage: str,
+    execution_id: str | None = None,
 ) -> bool:
     result = connection.execute(
         """
         UPDATE tasks
         SET status = ?, stage = ?, updated_at = ?
         WHERE id = ? AND status = ?
+          AND (? IS NULL OR execution_id = ?)
         """,
         (
             status,
@@ -76,6 +85,14 @@ def update_task_status(
             datetime.now(UTC).isoformat(),
             task_id,
             expected_status,
+            execution_id,
+            execution_id,
         ),
     )
     return result.rowcount == 1
+
+
+def is_running(connection: sqlite3.Connection, task: dict) -> bool:
+    current = get_task(connection, task["id"])
+    return bool(current and current["status"] == "running"
+                and current["execution_id"] == task["execution_id"])

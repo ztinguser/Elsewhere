@@ -17,6 +17,11 @@ async def retry_stage(branch_id: str, task_id: str, request: Request):
     try:
         with connect(state.life_db) as connection:
             old = get_task(connection, task_id)
+        if old is None or old["branch_id"] != branch_id:
+            raise HTTPException(404, "该分支下的任务不存在")
+        await state.worker.require_version(old)
+        with connect(state.life_db) as connection:
+            old = get_task(connection, task_id)
             if old is None or old["branch_id"] != branch_id:
                 raise HTTPException(404, "该分支下的任务不存在")
             if old["status"] != "failed":

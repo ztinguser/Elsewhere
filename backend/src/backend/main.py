@@ -28,6 +28,7 @@ from backend.storage.migrations import initialize_database
 from backend.credentials.store import CredentialStore
 from backend.tasks.worker import TaskWorker
 from backend.api.task_events import router as task_events_router
+from backend.api.task_control import router as task_control_router
 
 
 @asynccontextmanager
@@ -38,16 +39,15 @@ async def lifespan(app: FastAPI):
 
     initialize_database(app.state.life_db)
     app.state.credentials = CredentialStore()
-    app.state.worker = TaskWorker(app.state.life_db, app.state.credentials)
-    app.state.worker.start()
-
+    app.state.worker = TaskWorker(app.state.life_db, app.state.credentials, app.state.workflow_db)
     try:
-        yield
-    finally:
+        await app.state.worker.start()
         try:
-            await app.state.worker.close()
+            yield
         finally:
-            app.state.credentials.release()
+            await app.state.worker.close()
+    finally:
+        app.state.credentials.release()
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -80,6 +80,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(simulation_retry_router)
     app.include_router(narratives_router)
     app.include_router(task_events_router)
+    app.include_router(task_control_router)
     return app
 
 
@@ -89,4 +90,5 @@ def main() -> None:
     logger.addHandler(logging.StreamHandler())
     logger.propagate = False
 
-    uvicorn.run(create_app(), host="127.0.0.1", port=8000, access_log=False)
+    uvicorn.run(create_app(), host="127.0.0.1", port=8000, access_log=False,
+                timeout_graceful_shutdown=5)

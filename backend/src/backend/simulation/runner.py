@@ -5,18 +5,22 @@ from backend.models.simulation import StageData, StageReview
 from backend.simulation.rules import check_stage_rules
 
 
-async def run_stage(client: ModelClient, context: dict) -> dict:
+async def run_stage(client: ModelClient, context: dict, workflow=None) -> dict:
     draft = None
     issues = None
     calls = []
 
-    for _ in range(2):
-        generated = await generate_stage(
-            client, context, draft=draft, issues=issues,
-        )
+    for attempt in range(2):
+        async def generate():
+            return await generate_stage(client, context, draft=draft, issues=issues)
+
+        generated = await workflow.step(f"simulation:{attempt}:write", generate) if workflow else await generate()
         data = StageData.model_validate(generated["stage"])
         rule_issues = check_stage_rules(data, context)
-        reviewed = await review_stage(client, context, data)
+        async def check():
+            return await review_stage(client, context, data)
+
+        reviewed = await workflow.step(f"simulation:{attempt}:review", check) if workflow else await check()
         review = StageReview(
             issues=list(dict.fromkeys(rule_issues + reviewed["review"]["issues"]))
         )
