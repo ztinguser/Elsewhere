@@ -22,6 +22,7 @@ from backend.api.simulation import router as simulation_router
 from backend.api.simulation_read import router as simulation_read_router
 from backend.api.decisions import router as decisions_router
 from backend.api.simulation_retry import router as simulation_retry_router
+from backend.api.narratives import router as narratives_router
 from backend.config import Settings
 from backend.storage.migrations import initialize_database
 from backend.credentials.store import CredentialStore
@@ -71,6 +72,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(simulation_read_router)
     app.include_router(decisions_router)
     app.include_router(simulation_retry_router)
+    app.include_router(narratives_router)
     return app
 
 

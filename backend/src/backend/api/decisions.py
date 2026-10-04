@@ -7,6 +7,7 @@ from backend.models.decisions import DecisionInput
 from backend.simulation.execution import execute_stage_task
 from backend.storage.choices import get_choice, save_decision
 from backend.storage.database import connect
+from backend.storage.narratives import require_chapters
 from backend.storage.simulation_tasks import (
     fail_stage_task, get_latest_stage_task, queue_stage_task,
 )
@@ -30,6 +31,8 @@ async def submit_decision(
             if choice is None or choice["branch_id"] != branch_id:
                 raise HTTPException(404, "该分支下的选择节点不存在")
             position = choice["stage_position"] + 1
+            if choice["decision"] is None:
+                require_chapters(connection, branch_id, choice["stage_position"])
             if not save_decision(connection, choice_id, data):
                 return {
                     "choice": choice,

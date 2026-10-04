@@ -4,11 +4,14 @@ from uuid import uuid4
 
 from backend.storage.simulation_context import build_simulation_context
 from backend.storage.tasks import create_task, get_task
+from backend.storage.stages import get_stage
 
 
 def queue_stage_task(
     connection: sqlite3.Connection,
     branch_id: str,
+    *,
+    position: int | None = None,
 ) -> dict:
     row = connection.execute(
         """
@@ -21,13 +24,17 @@ def queue_stage_task(
     if row is not None:
         return get_task(connection, row["id"])
 
-    context = build_simulation_context(connection, branch_id)
+    if position is None or get_stage(connection, branch_id, position) is None:
+        context = build_simulation_context(connection, branch_id)
+        if position is not None and position != context["next_position"]:
+            raise ValueError("当前进度与待重试阶段不一致")
+        position = context["next_position"]
     task_id = create_task(
         connection,
         task_id=uuid4().hex,
         kind="generate_branch",
         branch_id=branch_id,
-        input_data={"position": context["next_position"]},
+        input_data={"position": position},
     )
     return get_task(connection, task_id)
 

@@ -4,6 +4,7 @@ from backend.llm.client import ModelClient, ModelError
 from backend.models.simulation import StageData, StageReview
 from backend.models.stage_audit import StageAudit
 from backend.simulation.runner import run_stage
+from backend.narrative.execution import write_stage_narratives
 from backend.storage.database import connect
 from backend.storage.simulation_context import build_simulation_context
 from backend.storage.simulation_tasks import fail_stage_task
@@ -45,11 +46,11 @@ async def execute_stage_task(
             result = await run_stage(client, context)
 
         with connect(path) as connection:
-            completed = update_task_status(
+            active = update_task_status(
                 connection, task_id,
-                expected_status="running", status="completed", stage="completed",
+                expected_status="running", status="running", stage="narrative",
             )
-            if not completed:
+            if not active:
                 return get_task(connection, task_id)
             if existing is None:
                 publish_stage(
@@ -60,6 +61,12 @@ async def execute_stage_task(
                     review=StageReview.model_validate(result["review"]),
                     audit=StageAudit.model_validate(result["audit"]),
                 )
+        await write_stage_narratives(path, task_id, client)
+        with connect(path) as connection:
+            update_task_status(
+                connection, task_id,
+                expected_status="running", status="completed", stage="completed",
+            )
             return get_task(connection, task_id)
 
     except Exception as exc:

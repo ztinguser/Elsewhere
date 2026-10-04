@@ -6,7 +6,6 @@ from backend.llm.deepseek import DeepSeekClient
 from backend.simulation.execution import execute_stage_task
 from backend.storage.database import connect
 from backend.storage.simulation_tasks import get_latest_stage_task, queue_stage_task
-from backend.storage.stages import get_stage
 from backend.storage.tasks import get_task
 
 
@@ -33,8 +32,6 @@ async def retry_stage(branch_id: str, task_id: str, request: Request):
             latest = get_latest_stage_task(connection, branch_id, position)
             if latest["id"] != task_id:
                 return latest
-            if get_stage(connection, branch_id, position) is not None:
-                raise HTTPException(409, "该阶段已经保存，无需重新生成")
 
         key = state.credentials.require_key()
         client = DeepSeekClient(key)
@@ -43,7 +40,7 @@ async def retry_stage(branch_id: str, task_id: str, request: Request):
                 latest = get_latest_stage_task(connection, branch_id, position)
                 if latest["id"] != task_id:
                     return latest
-                task = queue_stage_task(connection, branch_id)
+                task = queue_stage_task(connection, branch_id, position=position)
                 if task["input_data"].get("position") != position:
                     raise ValueError("当前进度与待重试阶段不一致")
 
