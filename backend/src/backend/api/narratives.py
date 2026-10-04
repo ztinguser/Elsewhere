@@ -2,8 +2,6 @@ from fastapi import APIRouter, HTTPException, Request
 
 from backend.api.errors import error_response
 from backend.llm.client import ModelError
-from backend.llm.deepseek import DeepSeekClient
-from backend.simulation.execution import execute_stage_task
 from backend.storage.branches import get_branch
 from backend.storage.database import connect
 from backend.storage.narratives import get_narrative, list_narratives, require_chapters
@@ -47,7 +45,7 @@ def read_ending(branch_id: str, request: Request):
         }
 
 
-@router.post("/{branch_id}/stages/{position}/narrative")
+@router.post("/{branch_id}/stages/{position}/narrative", status_code=202)
 async def generate_missing_narrative(branch_id: str, position: int, request: Request):
     state = request.app.state
     try:
@@ -63,20 +61,13 @@ async def generate_missing_narrative(branch_id: str, position: int, request: Req
             if latest and latest["status"] != "completed":
                 return {"status": latest["status"], "task": latest}
 
-        key = state.credentials.require_key()
-        client = DeepSeekClient(key)
-        try:
-            with connect(state.life_db) as connection:
-                latest = get_latest_stage_task(connection, branch_id, position)
-                if latest and latest["status"] != "completed":
-                    return {"status": latest["status"], "task": latest}
-                task = queue_stage_task(connection, branch_id, position=position)
-                if task["input_data"].get("position") != position:
-                    raise ValueError("该分支存在其他未完成任务")
-            task = await execute_stage_task(state.life_db, task["id"], client)
-            return {"status": task["status"], "task": task}
-        finally:
-            await client.aclose()
+        state.credentials.require_key()
+        with connect(state.life_db) as connection:
+            task = queue_stage_task(connection, branch_id, position=position)
+            if task["input_data"].get("position") != position:
+                raise ValueError("该分支存在其他未完成任务")
+        state.worker.notify()
+        return {"status": task["status"], "task": task}
     except ModelError as exc:
         return error_response(400 if exc.code == "MODEL_KEY_REQUIRED" else 502, exc.code, str(exc))
     except ValueError as exc:

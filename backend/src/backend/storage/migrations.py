@@ -19,12 +19,13 @@ from backend.storage.schema.v013_fork_requests import STATEMENTS as V013
 from backend.storage.schema.v014_fork_plans import STATEMENTS as V014
 from backend.storage.schema.v015_simulation import STATEMENTS as V015
 from backend.storage.schema.v016_narrative import STATEMENTS as V016
+from backend.storage.schema.v017_task_events import STATEMENTS as V017
 
 
 MIGRATIONS = [
     V001, V002, V003, V004, V005,
     V006, V007, V008, V009, V010,
-    V011, V012, V013, V014, V015, V016,
+    V011, V012, V013, V014, V015, V016, V017,
 ]
 
 

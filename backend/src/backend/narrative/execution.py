@@ -7,6 +7,7 @@ from backend.storage.narrative_context import build_narrative_context
 from backend.storage.narratives import finish_narrative, get_narrative, save_narrative_draft
 from backend.storage.stages import get_stage
 from backend.storage.tasks import get_task, update_task_status
+from backend.storage.task_events import record_event
 
 
 async def write_stage_narratives(path: Path, task_id: str, client: ModelClient) -> None:
@@ -36,6 +37,9 @@ async def write_stage_narratives(path: Path, task_id: str, client: ModelClient) 
                 if get_task(connection, task_id)["status"] != "running":
                     return
                 finish_narrative(connection, version_id, review, reply)
+                if not review.issues:
+                    record_event(connection, task_id, "narrative_published",
+                                 {"position": position, "kind": kind, "version_id": version_id})
             issues = review.issues
             if not issues:
                 break

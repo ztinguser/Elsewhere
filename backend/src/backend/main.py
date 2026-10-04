@@ -26,6 +26,8 @@ from backend.api.narratives import router as narratives_router
 from backend.config import Settings
 from backend.storage.migrations import initialize_database
 from backend.credentials.store import CredentialStore
+from backend.tasks.worker import TaskWorker
+from backend.api.task_events import router as task_events_router
 
 
 @asynccontextmanager
@@ -36,12 +38,16 @@ async def lifespan(app: FastAPI):
 
     initialize_database(app.state.life_db)
     app.state.credentials = CredentialStore()
-    app.state.generating_plans = set()
+    app.state.worker = TaskWorker(app.state.life_db, app.state.credentials)
+    app.state.worker.start()
 
     try:
         yield
     finally:
-        app.state.credentials.release()
+        try:
+            await app.state.worker.close()
+        finally:
+            app.state.credentials.release()
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -73,6 +79,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(decisions_router)
     app.include_router(simulation_retry_router)
     app.include_router(narratives_router)
+    app.include_router(task_events_router)
     return app
 
 

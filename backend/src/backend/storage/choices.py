@@ -3,6 +3,7 @@ import sqlite3
 from datetime import UTC, datetime
 
 from backend.models.decisions import DecisionInput, resolve_decision
+from backend.storage.task_queue import finish_wait
 
 
 def get_choice(
@@ -61,4 +62,5 @@ def save_decision(
     )
     if updated.rowcount != 1:
         raise ValueError("节点状态已变化，请重新读取")
+    finish_wait(connection, choice["branch_id"], "simulation_choice", choice_id)
     return True

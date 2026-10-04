@@ -2,9 +2,7 @@ from fastapi import APIRouter, HTTPException, Request
 
 from backend.api.errors import error_response
 from backend.llm.client import ModelError
-from backend.llm.deepseek import DeepSeekClient
 from backend.models.decisions import DecisionInput
-from backend.simulation.execution import execute_stage_task
 from backend.storage.choices import get_choice, save_decision
 from backend.storage.database import connect
 from backend.storage.narratives import require_chapters
@@ -16,7 +14,7 @@ from backend.storage.simulation_tasks import (
 router = APIRouter(prefix="/branches")
 
 
-@router.post("/{branch_id}/choices/{choice_id}/decision")
+@router.post("/{branch_id}/choices/{choice_id}/decision", status_code=202)
 async def submit_decision(
     branch_id: str,
     choice_id: str,
@@ -45,8 +43,7 @@ async def submit_decision(
             choice = get_choice(connection, choice_id)
 
         try:
-            key = state.credentials.require_key()
-            client = DeepSeekClient(key)
+            state.credentials.require_key()
         except Exception as exc:
             code = exc.code if isinstance(exc, ModelError) else "MODEL_SETUP_FAILED"
             message = str(exc) if isinstance(exc, ModelError) else "模型客户端初始化失败，请重试"
@@ -57,10 +54,7 @@ async def submit_decision(
                 )
             raise ModelError(code, message) from None
 
-        try:
-            task = await execute_stage_task(state.life_db, task["id"], client)
-        finally:
-            await client.aclose()
+        state.worker.notify()
 
         return {"choice": choice, "task": task}
 

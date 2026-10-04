@@ -9,7 +9,9 @@ from backend.storage.database import connect
 from backend.storage.simulation_context import build_simulation_context
 from backend.storage.simulation_tasks import fail_stage_task
 from backend.storage.stage_publication import publish_stage
-from backend.storage.stages import get_stage
+from backend.storage.stages import get_stage, get_stage_detail
+from backend.storage.task_queue import wait_for_input
+from backend.storage.task_events import record_event
 from backend.storage.tasks import get_task, update_task_status
 
 
@@ -61,12 +63,17 @@ async def execute_stage_task(
                     review=StageReview.model_validate(result["review"]),
                     audit=StageAudit.model_validate(result["audit"]),
                 )
+                record_event(connection, task_id, "stage_published", {"position": position})
         await write_stage_narratives(path, task_id, client)
         with connect(path) as connection:
-            update_task_status(
-                connection, task_id,
-                expected_status="running", status="completed", stage="completed",
-            )
+            stage = get_stage_detail(connection, task["branch_id"], position)
+            if stage["choice"] and stage["choice"]["decision"] is None:
+                wait_for_input(connection, task_id, "simulation_choice", stage["choice"]["id"])
+            else:
+                update_task_status(
+                    connection, task_id,
+                    expected_status="running", status="completed", stage="completed",
+                )
             return get_task(connection, task_id)
 
     except Exception as exc:
