@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Request
 
 from backend.models.forks import ForkInput
-from backend.storage.branches import get_branch
+from backend.storage.branch_listing import list_branches
 from backend.storage.database import connect
 from backend.storage.forks import create_fork
 from backend.storage.versions import get_fact_version
@@ -27,13 +27,19 @@ def add_branch(data: ForkInput, request: Request) -> dict:
     return {"id": branch_id}
 
 
+@router.get("")
+def read_branches(request: Request) -> list[dict]:
+    with connect(request.app.state.life_db) as connection:
+        return list_branches(connection)
+
+
 @router.get("/{branch_id}")
 def read_branch(branch_id: str, request: Request) -> dict:
     with connect(request.app.state.life_db) as connection:
-        branch = get_branch(connection, branch_id)
-        if branch is None:
+        branches = list_branches(connection, branch_id)
+        if not branches:
             raise HTTPException(404, "分支不存在")
-
+        branch = branches[0]
         branch["snapshot"] = get_fact_version(
             connection, branch["fact_version_id"]
         )

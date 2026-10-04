@@ -21,12 +21,13 @@ from backend.storage.schema.v015_simulation import STATEMENTS as V015
 from backend.storage.schema.v016_narrative import STATEMENTS as V016
 from backend.storage.schema.v017_task_events import STATEMENTS as V017
 from backend.storage.schema.v018_task_recovery import STATEMENTS as V018
+from backend.storage.schema.v019_branch_rewrites import STATEMENTS as V019
 
 
 MIGRATIONS = [
     V001, V002, V003, V004, V005,
     V006, V007, V008, V009, V010,
-    V011, V012, V013, V014, V015, V016, V017, V018,
+    V011, V012, V013, V014, V015, V016, V017, V018, V019,
 ]
 
 

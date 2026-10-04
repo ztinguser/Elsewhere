@@ -29,6 +29,8 @@ from backend.credentials.store import CredentialStore
 from backend.tasks.worker import TaskWorker
 from backend.api.task_events import router as task_events_router
 from backend.api.task_control import router as task_control_router
+from backend.api.branch_rewrites import router as branch_rewrites_router
+from backend.api.reading import router as reading_router
 
 
 @asynccontextmanager
@@ -81,6 +83,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(narratives_router)
     app.include_router(task_events_router)
     app.include_router(task_control_router)
+    app.include_router(branch_rewrites_router)
+    app.include_router(reading_router)
     return app
 
 
