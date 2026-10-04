@@ -5,6 +5,7 @@ from uuid import uuid4
 from backend.models.facts import FactData
 
 
+# 处理旧的片段与提取节点存储
 def create_fragment(
     connection: sqlite3.Connection, content: str
 ) -> str:

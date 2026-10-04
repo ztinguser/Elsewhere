@@ -44,6 +44,9 @@ async def task_events(branch_id: str, task_id: str, request: Request,
             with connect(request.app.state.life_db) as connection:
                 events = list_events(connection, task_id, cursor)
                 task = get_task(connection, task_id)
+            if task is None:
+                yield f'event: deleted\ndata: {json.dumps({"id": task_id, "branch_id": branch_id})}\n\n'
+                return
             for event in events:
                 cursor = event["seq"]
                 yield f"id: {cursor}\nevent: {event['event']}\ndata: {json.dumps(event['data'], ensure_ascii=False)}\n\n"

@@ -25,6 +25,8 @@ class TaskWorker:
         self.current_job = None
         self.current_id = None
         self.closed = False
+        self.paused = False
+        self.activity = asyncio.Lock()
 
     async def start(self):
         self.checkpoints = AsyncSqliteSaver.from_conn_string(str(self.workflow_path))
@@ -90,24 +92,30 @@ class TaskWorker:
         while True:
             await self.wakeup.wait()
             self.wakeup.clear()
-            await self.sync_waits()
+            async with self.activity:
+                if self.paused:
+                    continue
+                await self.sync_waits()
             while True:
-                with connect(self.path) as connection:
-                    row = connection.execute(
-                        "SELECT id FROM tasks WHERE status = 'queued' ORDER BY created_at, rowid LIMIT 1"
-                    ).fetchone()
-                    task = get_task(connection, row["id"]) if row else None
-                if task is None:
-                    break
-                self.current_id = task["id"]
-                self.current_job = asyncio.create_task(self.execute(task))
-                try:
-                    await self.current_job
-                except asyncio.CancelledError:
-                    if asyncio.current_task().cancelling():
-                        raise
-                finally:
-                    self.current_id = self.current_job = None
+                async with self.activity:
+                    if self.paused:
+                        break
+                    with connect(self.path) as connection:
+                        row = connection.execute(
+                            "SELECT id FROM tasks WHERE status = 'queued' ORDER BY created_at, rowid LIMIT 1"
+                        ).fetchone()
+                        task = get_task(connection, row["id"]) if row else None
+                    if task is None:
+                        break
+                    self.current_id = task["id"]
+                    self.current_job = asyncio.create_task(self.execute(task))
+                    try:
+                        await self.current_job
+                    except asyncio.CancelledError:
+                        if asyncio.current_task().cancelling():
+                            raise
+                    finally:
+                        self.current_id = self.current_job = None
 
     async def execute(self, task):
         client = None

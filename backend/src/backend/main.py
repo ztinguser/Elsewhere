@@ -31,6 +31,9 @@ from backend.api.task_events import router as task_events_router
 from backend.api.task_control import router as task_control_router
 from backend.api.branch_rewrites import router as branch_rewrites_router
 from backend.api.reading import router as reading_router
+from backend.api.data import router as data_router
+from backend.data.deletion import finish_deletion
+from backend.data.maintenance import Maintenance, protect_writes
 
 
 @asynccontextmanager
@@ -40,8 +43,10 @@ async def lifespan(app: FastAPI):
     app.state.workflow_db = data_dir / "workflow.sqlite"
 
     initialize_database(app.state.life_db)
+    finish_deletion(data_dir)
     app.state.credentials = CredentialStore()
     app.state.worker = TaskWorker(app.state.life_db, app.state.credentials, app.state.workflow_db)
+    app.state.maintenance = Maintenance(app.state.worker)
     try:
         await app.state.worker.start()
         try:
@@ -65,6 +70,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.add_exception_handler(RequestValidationError, validation_error)
 
     app.middleware("http")(check_source)
+    app.middleware("http")(protect_writes)
     app.middleware("http")(track_request)
 
     app.include_router(health_router)
@@ -85,6 +91,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(task_control_router)
     app.include_router(branch_rewrites_router)
     app.include_router(reading_router)
+    app.include_router(data_router)
     return app
 
 
