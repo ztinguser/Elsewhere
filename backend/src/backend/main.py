@@ -1,5 +1,6 @@
 import logging
 from contextlib import asynccontextmanager
+from secrets import token_urlsafe
 
 import uvicorn
 from fastapi import FastAPI
@@ -10,6 +11,7 @@ from backend.api.errors import http_error, validation_error
 from backend.api.health import router as health_router
 from backend.api.middleware import track_request
 from backend.api.security import check_source
+from backend.api.session import router as session_router
 from backend.api.model import router as model_router
 from backend.api.drafts import router as drafts_router
 from backend.api.memories import router as memories_router
@@ -38,6 +40,7 @@ from backend.data.maintenance import Maintenance, protect_writes
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    app.state.session_token = token_urlsafe(32)
     data_dir = app.state.settings.data_dir
     app.state.life_db = data_dir / "life.sqlite"
     app.state.workflow_db = data_dir / "workflow.sqlite"
@@ -69,11 +72,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.add_exception_handler(HTTPException, http_error)
     app.add_exception_handler(RequestValidationError, validation_error)
 
-    app.middleware("http")(check_source)
     app.middleware("http")(protect_writes)
+    app.middleware("http")(check_source)
     app.middleware("http")(track_request)
 
     app.include_router(health_router)
+    app.include_router(session_router)
     app.include_router(model_router)
     app.include_router(drafts_router)
     app.include_router(polishing_router)
