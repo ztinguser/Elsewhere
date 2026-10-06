@@ -3,7 +3,7 @@ import json
 
 from langchain.chat_models import init_chat_model
 from langsmith import tracing_context
-from openai import APIError
+from openai import APIError, ContentFilterFinishReasonError, LengthFinishReasonError
 
 from backend.llm.client import ModelError, ModelReply
 from backend.llm.errors import model_error
@@ -61,7 +61,7 @@ class DeepSeekClient:
             raise ModelError("MODEL_TIMEOUT", "模型响应超时，请稍后重试") from None
         except APIError as exc:
             raise model_error(exc) from None
-        except (ValueError, KeyError, IndexError, TypeError):
+        except (ValueError, KeyError, IndexError, TypeError, LengthFinishReasonError, ContentFilterFinishReasonError):
             raise ModelError(
                 "MODEL_INVALID_OUTPUT", "模型返回内容为空、不完整或格式不正确"
             ) from None
