@@ -34,7 +34,7 @@
 | 500 `INTERNAL_ERROR` | 数据库/服务异常，不显示底层错误细节，不把这次操作显示为保存成功 |
 | 其他 `HTTP_<状态码>` | 业务 HTTP 错误仍使用相同外壳，例如 Key 为空时 `HTTP_422` |
 
-模型错误也会出现在后台任务中，此时查询任务本身仍为 HTTP 200。`SIMULATION_REVIEW_FAILED`、`NARRATIVE_REVIEW_FAILED`、`TASK_EXECUTION_FAILED`、`MODEL_SETUP_FAILED`、`WORKFLOW_VERSION_UNSUPPORTED`、`TASK_UNSUPPORTED` 等为任务失败原因。未知错误使用通用失败展示，并允许重新读取状态；不要将未知值解释成完成。
+模型错误也会出现在后台任务中，此时查询任务本身仍为 HTTP 200。`STAGE_REVIEW_FAILED`、`NARRATIVE_REVIEW_FAILED`、`TASK_EXECUTION_FAILED`、`MODEL_SETUP_FAILED`、`WORKFLOW_VERSION_UNSUPPORTED`、`TASK_UNSUPPORTED` 等为任务失败原因。未知错误使用通用失败展示，并允许重新读取状态；不要将未知值解释成完成。
 
 ## 回忆、草稿与存档
 

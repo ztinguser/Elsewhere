@@ -1,4 +1,16 @@
+import re
+
 from backend.models.simulation import StageData
+
+
+def _date_value(value: str) -> tuple[int, int, int] | None:
+    match = re.search(r"(\d{4})\s*(?:年|-|/)(\d{1,2})\s*(?:月|-|/)(\d{1,2})", value)
+    if not match:
+        return None
+    year, month, day = (int(item) for item in match.groups())
+    if not 1 <= month <= 12 or not 1 <= day <= 31:
+        return None
+    return year, month, day
 
 
 def check_stage_rules(data: StageData, context: dict) -> list[str]:
@@ -9,8 +21,11 @@ def check_stage_rules(data: StageData, context: dict) -> list[str]:
         issues.append("阶段停止时间不能为空")
     if data.end_reason == "target" and data.end_time_text != context["target_date"]:
         issues.append("抵达终点时，停止时间必须等于分支固定的终点日期")
-    if data.end_reason == "choice" and data.end_time_text == context["target_date"]:
-        issues.append("已抵达整体终点，应结束推演，不再创建待决定节点")
+    if data.end_reason == "choice":
+        end_date = _date_value(data.end_time_text)
+        target_date = _date_value(context["target_date"])
+        if end_date and target_date and end_date >= target_date:
+            issues.append("已抵达整体终点，应结束推演，不再创建待决定节点")
 
     for index, event in enumerate(data.events, start=1):
         if not event.summary.strip():
