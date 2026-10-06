@@ -12,6 +12,7 @@ from backend.api.health import router as health_router
 from backend.api.middleware import track_request
 from backend.api.security import check_source
 from backend.api.session import router as session_router
+from backend.api.schema import api_schema
 from backend.api.model import router as model_router
 from backend.api.drafts import router as drafts_router
 from backend.api.memories import router as memories_router
@@ -96,6 +97,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(branch_rewrites_router)
     app.include_router(reading_router)
     app.include_router(data_router)
+    app.openapi = lambda: api_schema(app)
     return app
 
 

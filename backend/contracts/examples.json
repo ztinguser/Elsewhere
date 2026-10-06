@@ -1,0 +1,1204 @@
+{
+  "session": {
+    "method": "POST",
+    "path": "/session",
+    "request": null,
+    "status": 204,
+    "response": null
+  },
+  "draft": {
+    "method": "PUT",
+    "path": "/drafts/part10",
+    "request": {
+      "time_text": "",
+      "content": "未完成的虚构草稿",
+      "expected_revision": 0
+    },
+    "status": 200,
+    "response": {
+      "id": "part10",
+      "revision": 1
+    }
+  },
+  "memory_create": {
+    "method": "POST",
+    "path": "/memories",
+    "request": {
+      "time_text": "2026年10月3日",
+      "content": "虚构验收案例：原人生中我留在南京，在这一天才第一次学习视频剪辑，还没有用它接单。"
+    },
+    "status": 201,
+    "response": {
+      "id": "8d67720811cd4ff5965a03195175dae3",
+      "revision": 1
+    }
+  },
+  "missing_key": {
+    "method": "POST",
+    "path": "/memories/polish",
+    "request": {
+      "content": "虚构验收案例：我读完大专，在南京开始做排版工作。"
+    },
+    "status": 400,
+    "response": {
+      "error": {
+        "code": "MODEL_KEY_REQUIRED",
+        "message": "请先设置 DeepSeek API Key"
+      }
+    }
+  },
+  "memories": {
+    "method": "GET",
+    "path": "/memories",
+    "request": null,
+    "status": 200,
+    "response": [
+      {
+        "id": "6606214fb65a4a6889ae803c46da705a",
+        "time_text": "2026年9月28日",
+        "content": "虚构验收案例：我住在南京，做自由接单的排版工作。收到上海一场四天行业交流的邀请，9月29日开始，10月2日结束，没有任何录用承诺。我原本决定不去。交通费和住宿费需要自己承担，存款金额还没录入。活动后是否留沪找工作尚未决定。",
+        "position": 1,
+        "revision": 1,
+        "created_at": "2026-10-06T19:24:46.787523+00:00",
+        "updated_at": "2026-10-06T19:24:46.787523+00:00"
+      },
+      {
+        "id": "bce8e8279c124fa48a4ed6cae9285831",
+        "time_text": "2018年夏天",
+        "content": "虚构验收案例：我读完大专，在南京开始做排版工作。",
+        "position": 2,
+        "revision": 1,
+        "created_at": "2026-10-06T19:24:46.795522+00:00",
+        "updated_at": "2026-10-06T19:24:46.795522+00:00"
+      },
+      {
+        "id": "8d67720811cd4ff5965a03195175dae3",
+        "time_text": "2026年10月3日",
+        "content": "虚构验收案例：原人生中我留在南京，在这一天才第一次学习视频剪辑，还没有用它接单。",
+        "position": 3,
+        "revision": 1,
+        "created_at": "2026-10-06T19:24:46.804525+00:00",
+        "updated_at": "2026-10-06T19:24:46.804525+00:00"
+      }
+    ]
+  },
+  "polish_discard": {
+    "method": "POST",
+    "path": "/memories/polish",
+    "request": {
+      "content": "虚构验收案例：我读完大专，在南京开始做排版工作。"
+    },
+    "status": 200,
+    "response": {
+      "content": "虚构验收案例：我读完大专，在南京开始做排版工作。（离线润色建议）",
+      "prompts": [],
+      "model": "offline-part10",
+      "usage": {
+        "total_tokens": 10
+      }
+    }
+  },
+  "polish_adopt": {
+    "method": "POST",
+    "path": "/memories/polish",
+    "request": {
+      "content": "虚构验收案例：我读完大专，在南京开始做排版工作。"
+    },
+    "status": 200,
+    "response": {
+      "content": "虚构验收案例：我读完大专，在南京开始做排版工作。（离线润色建议）",
+      "prompts": [],
+      "model": "offline-part10",
+      "usage": {
+        "total_tokens": 10
+      }
+    }
+  },
+  "memory_update": {
+    "method": "PUT",
+    "path": "/memories/bce8e8279c124fa48a4ed6cae9285831",
+    "request": {
+      "time_text": "2018年夏天",
+      "content": "虚构验收案例：我读完大专，在南京开始做排版工作。（离线润色建议）",
+      "expected_revision": 1
+    },
+    "status": 200,
+    "response": {
+      "id": "bce8e8279c124fa48a4ed6cae9285831",
+      "revision": 2
+    }
+  },
+  "order": {
+    "method": "PUT",
+    "path": "/memories/order",
+    "request": {
+      "ids": [
+        "bce8e8279c124fa48a4ed6cae9285831",
+        "6606214fb65a4a6889ae803c46da705a",
+        "8d67720811cd4ff5965a03195175dae3"
+      ]
+    },
+    "status": 204,
+    "response": null
+  },
+  "archive_unconfirmed": {
+    "method": "GET",
+    "path": "/life/archive",
+    "request": null,
+    "status": 200,
+    "response": {
+      "revision": 6,
+      "confirmed_revision": null,
+      "confirmed_at": null,
+      "is_confirmed": false
+    }
+  },
+  "archive_required": {
+    "method": "POST",
+    "path": "/branches",
+    "request": {
+      "request_id": "part10-root",
+      "memory_id": "6606214fb65a4a6889ae803c46da705a",
+      "alternative": "这次去上海参加9月29日至10月2日的行业交流，活动结束后再决定留沪寻找机会还是回南京。只决定参加，不预设获得工作或搬家。",
+      "expected_revision": 6
+    },
+    "status": 409,
+    "response": {
+      "error": {
+        "code": "HTTP_409",
+        "message": "真实人生尚未确认存档或版本已变化，请重新检查"
+      }
+    }
+  },
+  "archive_confirm": {
+    "method": "POST",
+    "path": "/life/archive/confirm",
+    "request": {
+      "expected_revision": 6
+    },
+    "status": 200,
+    "response": {
+      "revision": 6,
+      "confirmed_revision": 6,
+      "confirmed_at": "2026-10-06T19:24:46.883675+00:00",
+      "is_confirmed": true
+    }
+  },
+  "branch_create": {
+    "method": "POST",
+    "path": "/branches",
+    "request": {
+      "request_id": "part10-root",
+      "memory_id": "6606214fb65a4a6889ae803c46da705a",
+      "alternative": "这次去上海参加9月29日至10月2日的行业交流，活动结束后再决定留沪寻找机会还是回南京。只决定参加，不预设获得工作或搬家。",
+      "expected_revision": 6
+    },
+    "status": 201,
+    "response": {
+      "id": "d913096320b44c8a9d5a25af69f9dd49"
+    }
+  },
+  "branch_detail": {
+    "method": "GET",
+    "path": "/branches/d913096320b44c8a9d5a25af69f9dd49",
+    "request": null,
+    "status": 200,
+    "response": {
+      "id": "d913096320b44c8a9d5a25af69f9dd49",
+      "parent_id": null,
+      "fact_version_id": "515c7693e9b146d1b671483efb1f3647",
+      "fork_fact_id": "6606214fb65a4a6889ae803c46da705a",
+      "alternative": "这次去上海参加9月29日至10月2日的行业交流，活动结束后再决定留沪寻找机会还是回南京。只决定参加，不预设获得工作或搬家。",
+      "target_date": "2026-10-07",
+      "assumptions": [],
+      "status": "draft",
+      "created_at": "2026-10-06T19:24:46.893634+00:00",
+      "updated_at": "2026-10-06T19:24:46.893634+00:00",
+      "fork_choice_id": null,
+      "stage_count": 0,
+      "current_time_text": null,
+      "fork_decision": null,
+      "facts_outdated": false,
+      "snapshot": {
+        "format_version": 2,
+        "archive_revision": 6,
+        "facts": [
+          {
+            "id": "bce8e8279c124fa48a4ed6cae9285831",
+            "time_text": "2018年夏天",
+            "content": "虚构验收案例：我读完大专，在南京开始做排版工作。（离线润色建议）",
+            "position": 1,
+            "revision": 2,
+            "created_at": "2026-10-06T19:24:46.795522+00:00",
+            "updated_at": "2026-10-06T19:24:46.840668+00:00"
+          },
+          {
+            "id": "6606214fb65a4a6889ae803c46da705a",
+            "time_text": "2026年9月28日",
+            "content": "虚构验收案例：我住在南京，做自由接单的排版工作。收到上海一场四天行业交流的邀请，9月29日开始，10月2日结束，没有任何录用承诺。我原本决定不去。交通费和住宿费需要自己承担，存款金额还没录入。活动后是否留沪找工作尚未决定。",
+            "position": 2,
+            "revision": 1,
+            "created_at": "2026-10-06T19:24:46.787523+00:00",
+            "updated_at": "2026-10-06T19:24:46.787523+00:00"
+          },
+          {
+            "id": "8d67720811cd4ff5965a03195175dae3",
+            "time_text": "2026年10月3日",
+            "content": "虚构验收案例：原人生中我留在南京，在这一天才第一次学习视频剪辑，还没有用它接单。",
+            "position": 3,
+            "revision": 1,
+            "created_at": "2026-10-06T19:24:46.804525+00:00",
+            "updated_at": "2026-10-06T19:24:46.804525+00:00"
+          }
+        ]
+      }
+    }
+  },
+  "plan_submit": {
+    "method": "POST",
+    "path": "/branches/d913096320b44c8a9d5a25af69f9dd49/plan",
+    "request": null,
+    "status": 202,
+    "response": {
+      "id": "7ecdac5e6a3c4fd08349117e0c3a4c7e",
+      "kind": "generate_branch",
+      "branch_id": "d913096320b44c8a9d5a25af69f9dd49",
+      "input_data": {
+        "operation": "fork_plan"
+      },
+      "status": "queued",
+      "stage": "pending",
+      "retry_count": 0,
+      "error_code": null,
+      "workflow_version": "2",
+      "created_at": "2026-10-06T19:24:47.010479+00:00",
+      "updated_at": "2026-10-06T19:24:47.010479+00:00",
+      "error_message": null,
+      "waiting_reason": null,
+      "waiting_object_id": null,
+      "retry_of": null,
+      "execution_id": "1c784ccd189a4989aee0467477350285"
+    }
+  },
+  "plan_read": {
+    "method": "GET",
+    "path": "/branches/d913096320b44c8a9d5a25af69f9dd49/plan",
+    "request": null,
+    "status": 200,
+    "response": {
+      "branch_id": "d913096320b44c8a9d5a25af69f9dd49",
+      "revision": 1,
+      "status": "waiting_input",
+      "plan": {
+        "change": "这次去上海参加9月29日至10月2日的行业交流，活动结束后再决定留沪寻找机会还是回南京。只决定参加，不预设获得工作或搬家。",
+        "preserved": [],
+        "affected": [],
+        "external_conditions": [],
+        "information_limits": [],
+        "assumptions": [],
+        "blockers": []
+      },
+      "questions": [
+        {
+          "question_id": "q1",
+          "question": "本次可支配预算是多少？",
+          "assumption": "有足够完成这四天交流及往返的预算，但不足以长期脱产。"
+        },
+        {
+          "question_id": "q2",
+          "question": "交流期间怎样住宿？",
+          "assumption": "已订四晚普通旅店，活动后没有长期住处。"
+        }
+      ],
+      "answers": []
+    }
+  },
+  "blank_answer": {
+    "method": "POST",
+    "path": "/branches/d913096320b44c8a9d5a25af69f9dd49/plan/answers",
+    "request": {
+      "expected_revision": 1,
+      "answers": [
+        {
+          "question_id": "q1",
+          "answer": ""
+        },
+        {
+          "question_id": "q2",
+          "answer": ""
+        }
+      ]
+    },
+    "status": 422,
+    "response": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "message": "请求参数不符合要求"
+      }
+    }
+  },
+  "answers_submit": {
+    "method": "POST",
+    "path": "/branches/d913096320b44c8a9d5a25af69f9dd49/plan/answers",
+    "request": {
+      "expected_revision": 1,
+      "answers": [
+        {
+          "question_id": "q1",
+          "answer": "虚构：可动用预算3000元。"
+        },
+        {
+          "question_id": "q2",
+          "use_assumption": true
+        }
+      ]
+    },
+    "status": 202,
+    "response": {
+      "id": "aa0c346da4f34759abc5f927abeff4f3",
+      "kind": "generate_branch",
+      "branch_id": "d913096320b44c8a9d5a25af69f9dd49",
+      "input_data": {
+        "operation": "fork_answers",
+        "request": {
+          "expected_revision": 1,
+          "answers": [
+            {
+              "question_id": "q1",
+              "answer": "虚构：可动用预算3000元。",
+              "use_assumption": false
+            },
+            {
+              "question_id": "q2",
+              "answer": "",
+              "use_assumption": true
+            }
+          ]
+        },
+        "answers": [
+          {
+            "question_id": "q1",
+            "answer": "虚构：可动用预算3000元。",
+            "use_assumption": false,
+            "assumption": null
+          },
+          {
+            "question_id": "q2",
+            "answer": "",
+            "use_assumption": true,
+            "assumption": "已订四晚普通旅店，活动后没有长期住处。"
+          }
+        ]
+      },
+      "status": "queued",
+      "stage": "pending",
+      "retry_count": 0,
+      "error_code": null,
+      "workflow_version": "2",
+      "created_at": "2026-10-06T19:24:47.223480+00:00",
+      "updated_at": "2026-10-06T19:24:47.223480+00:00",
+      "error_message": null,
+      "waiting_reason": null,
+      "waiting_object_id": null,
+      "retry_of": null,
+      "execution_id": "ac8ce399e48c404395a08d910fdf28ce"
+    }
+  },
+  "plan_final": {
+    "method": "GET",
+    "path": "/branches/d913096320b44c8a9d5a25af69f9dd49/plan",
+    "request": null,
+    "status": 200,
+    "response": {
+      "branch_id": "d913096320b44c8a9d5a25af69f9dd49",
+      "revision": 2,
+      "status": "waiting_confirmation",
+      "plan": {
+        "change": "这次去上海参加9月29日至10月2日的行业交流，活动结束后再决定留沪寻找机会还是回南京。只决定参加，不预设获得工作或搬家。",
+        "preserved": [],
+        "affected": [],
+        "external_conditions": [],
+        "information_limits": [],
+        "assumptions": [
+          "已订四晚普通旅店，活动后没有长期住处。"
+        ],
+        "blockers": []
+      },
+      "questions": [
+        {
+          "question_id": "q1",
+          "question": "本次可支配预算是多少？",
+          "assumption": "有足够完成这四天交流及往返的预算，但不足以长期脱产。"
+        },
+        {
+          "question_id": "q2",
+          "question": "交流期间怎样住宿？",
+          "assumption": "已订四晚普通旅店，活动后没有长期住处。"
+        }
+      ],
+      "answers": [
+        {
+          "question_id": "q1",
+          "answer": "虚构：可动用预算3000元。",
+          "use_assumption": false,
+          "assumption": null
+        },
+        {
+          "question_id": "q2",
+          "answer": "",
+          "use_assumption": true,
+          "assumption": "已订四晚普通旅店，活动后没有长期住处。"
+        }
+      ]
+    }
+  },
+  "plan_confirm": {
+    "method": "POST",
+    "path": "/branches/d913096320b44c8a9d5a25af69f9dd49/plan/confirm",
+    "request": {
+      "expected_revision": 2
+    },
+    "status": 200,
+    "response": {
+      "branch_id": "d913096320b44c8a9d5a25af69f9dd49",
+      "revision": 3,
+      "status": "confirmed",
+      "plan": {
+        "change": "这次去上海参加9月29日至10月2日的行业交流，活动结束后再决定留沪寻找机会还是回南京。只决定参加，不预设获得工作或搬家。",
+        "preserved": [],
+        "affected": [],
+        "external_conditions": [],
+        "information_limits": [],
+        "assumptions": [
+          "已订四晚普通旅店，活动后没有长期住处。"
+        ],
+        "blockers": []
+      },
+      "questions": [
+        {
+          "question_id": "q1",
+          "question": "本次可支配预算是多少？",
+          "assumption": "有足够完成这四天交流及往返的预算，但不足以长期脱产。"
+        },
+        {
+          "question_id": "q2",
+          "question": "交流期间怎样住宿？",
+          "assumption": "已订四晚普通旅店，活动后没有长期住处。"
+        }
+      ],
+      "answers": [
+        {
+          "question_id": "q1",
+          "answer": "虚构：可动用预算3000元。",
+          "use_assumption": false,
+          "assumption": null
+        },
+        {
+          "question_id": "q2",
+          "answer": "",
+          "use_assumption": true,
+          "assumption": "已订四晚普通旅店，活动后没有长期住处。"
+        }
+      ]
+    }
+  },
+  "start_submit": {
+    "method": "POST",
+    "path": "/branches/d913096320b44c8a9d5a25af69f9dd49/start",
+    "request": null,
+    "status": 202,
+    "response": {
+      "id": "c88f8599fa0a493e8e085467d2fb4f08",
+      "kind": "generate_branch",
+      "branch_id": "d913096320b44c8a9d5a25af69f9dd49",
+      "input_data": {
+        "position": 1
+      },
+      "status": "queued",
+      "stage": "pending",
+      "retry_count": 0,
+      "error_code": null,
+      "workflow_version": "2",
+      "created_at": "2026-10-06T19:24:47.450482+00:00",
+      "updated_at": "2026-10-06T19:24:47.450482+00:00",
+      "error_message": null,
+      "waiting_reason": null,
+      "waiting_object_id": null,
+      "retry_of": null,
+      "execution_id": "98c953313e1f4b9d8e423d73e6002695"
+    }
+  },
+  "start_stages": {
+    "method": "GET",
+    "path": "/branches/d913096320b44c8a9d5a25af69f9dd49/stages",
+    "request": null,
+    "status": 200,
+    "response": [
+      {
+        "id": "ac3afb263fcd4813a6e286b376a66c99",
+        "branch_id": "d913096320b44c8a9d5a25af69f9dd49",
+        "position": 1,
+        "end_time_text": "2026年10月2日",
+        "end_reason": "choice",
+        "review": {
+          "issues": [],
+          "audit": {
+            "decisions": {
+              "issues": [],
+              "evidence": "测试：核对事件行动与已提交决定。"
+            },
+            "resources": {
+              "issues": [],
+              "evidence": "测试：核对已知条件与资源来源。"
+            },
+            "state": {
+              "issues": [],
+              "evidence": "测试：核对时间、状态与选项前提。"
+            }
+          }
+        },
+        "created_at": "2026-10-06T19:24:47.527478+00:00",
+        "source_stage_id": null
+      }
+    ]
+  },
+  "start_stage_detail": {
+    "method": "GET",
+    "path": "/branches/d913096320b44c8a9d5a25af69f9dd49/stages/1",
+    "request": null,
+    "status": 200,
+    "response": {
+      "id": "ac3afb263fcd4813a6e286b376a66c99",
+      "branch_id": "d913096320b44c8a9d5a25af69f9dd49",
+      "position": 1,
+      "end_time_text": "2026年10月2日",
+      "end_reason": "choice",
+      "review": {
+        "issues": [],
+        "audit": {
+          "decisions": {
+            "issues": [],
+            "evidence": "测试：核对事件行动与已提交决定。"
+          },
+          "resources": {
+            "issues": [],
+            "evidence": "测试：核对已知条件与资源来源。"
+          },
+          "state": {
+            "issues": [],
+            "evidence": "测试：核对时间、状态与选项前提。"
+          }
+        }
+      },
+      "created_at": "2026-10-06T19:24:47.527478+00:00",
+      "source_stage_id": null,
+      "events": [
+        {
+          "id": "16e8ed8cf8174256a6c3a2424affb92e",
+          "branch_id": "d913096320b44c8a9d5a25af69f9dd49",
+          "position": 1,
+          "data": {
+            "summary": "交流活动结束",
+            "mechanism": "执行已确认决定",
+            "time_text": null,
+            "preconditions": [],
+            "fact_ids": [
+              "6606214fb65a4a6889ae803c46da705a"
+            ],
+            "assumptions": [],
+            "state_before": {},
+            "state_after": {},
+            "uncertainty": ""
+          },
+          "status": "validated",
+          "created_at": "2026-10-06T19:24:47.527478+00:00",
+          "stage_id": "ac3afb263fcd4813a6e286b376a66c99"
+        }
+      ],
+      "choice": {
+        "id": "08b24589e4f046658fb0acaca5f64ddc",
+        "stage_id": "ac3afb263fcd4813a6e286b376a66c99",
+        "data": {
+          "situation": "活动已结束，接下来去哪里？",
+          "options": [
+            "留沪寻找机会",
+            "回南京继续接单"
+          ]
+        },
+        "decision_input": null,
+        "decision": null,
+        "decided_at": null,
+        "branch_id": "d913096320b44c8a9d5a25af69f9dd49",
+        "stage_position": 1
+      }
+    }
+  },
+  "start_ending": {
+    "method": "GET",
+    "path": "/branches/d913096320b44c8a9d5a25af69f9dd49/ending",
+    "request": null,
+    "status": 200,
+    "response": {
+      "target_date": "2026-10-07",
+      "reached_target": false,
+      "status": "unavailable",
+      "today": null,
+      "retrospective": null
+    }
+  },
+  "start_task": {
+    "method": "GET",
+    "path": "/branches/d913096320b44c8a9d5a25af69f9dd49/tasks/c88f8599fa0a493e8e085467d2fb4f08",
+    "request": null,
+    "status": 200,
+    "response": {
+      "id": "c88f8599fa0a493e8e085467d2fb4f08",
+      "kind": "generate_branch",
+      "branch_id": "d913096320b44c8a9d5a25af69f9dd49",
+      "input_data": {
+        "position": 1
+      },
+      "status": "waiting_input",
+      "stage": "waiting_input",
+      "retry_count": 0,
+      "error_code": null,
+      "workflow_version": "2",
+      "created_at": "2026-10-06T19:24:47.450482+00:00",
+      "updated_at": "2026-10-06T19:24:47.598480+00:00",
+      "error_message": null,
+      "waiting_reason": "simulation_choice",
+      "waiting_object_id": "08b24589e4f046658fb0acaca5f64ddc",
+      "retry_of": null,
+      "execution_id": "98c953313e1f4b9d8e423d73e6002695"
+    }
+  },
+  "decide_submit": {
+    "method": "POST",
+    "path": "/branches/d913096320b44c8a9d5a25af69f9dd49/choices/08b24589e4f046658fb0acaca5f64ddc/decision",
+    "request": {
+      "option_index": 0
+    },
+    "status": 202,
+    "response": {
+      "choice": {
+        "id": "08b24589e4f046658fb0acaca5f64ddc",
+        "stage_id": "ac3afb263fcd4813a6e286b376a66c99",
+        "data": {
+          "situation": "活动已结束，接下来去哪里？",
+          "options": [
+            "留沪寻找机会",
+            "回南京继续接单"
+          ]
+        },
+        "decision_input": {
+          "option_index": 0,
+          "custom_decision": ""
+        },
+        "decision": "留沪寻找机会",
+        "decided_at": "2026-10-06T19:24:47.788178+00:00",
+        "branch_id": "d913096320b44c8a9d5a25af69f9dd49",
+        "stage_position": 1
+      },
+      "task": {
+        "id": "9e19758be3ff48cf81f34b207e79dba0",
+        "kind": "generate_branch",
+        "branch_id": "d913096320b44c8a9d5a25af69f9dd49",
+        "input_data": {
+          "position": 2
+        },
+        "status": "queued",
+        "stage": "pending",
+        "retry_count": 0,
+        "error_code": null,
+        "workflow_version": "2",
+        "created_at": "2026-10-06T19:24:47.788178+00:00",
+        "updated_at": "2026-10-06T19:24:47.788178+00:00",
+        "error_message": null,
+        "waiting_reason": null,
+        "waiting_object_id": null,
+        "retry_of": null,
+        "execution_id": "26ed69f3b96642c192796f41fb2ccb2c"
+      }
+    }
+  },
+  "decide_stages": {
+    "method": "GET",
+    "path": "/branches/d913096320b44c8a9d5a25af69f9dd49/stages",
+    "request": null,
+    "status": 200,
+    "response": [
+      {
+        "id": "ac3afb263fcd4813a6e286b376a66c99",
+        "branch_id": "d913096320b44c8a9d5a25af69f9dd49",
+        "position": 1,
+        "end_time_text": "2026年10月2日",
+        "end_reason": "choice",
+        "review": {
+          "issues": [],
+          "audit": {
+            "decisions": {
+              "issues": [],
+              "evidence": "测试：核对事件行动与已提交决定。"
+            },
+            "resources": {
+              "issues": [],
+              "evidence": "测试：核对已知条件与资源来源。"
+            },
+            "state": {
+              "issues": [],
+              "evidence": "测试：核对时间、状态与选项前提。"
+            }
+          }
+        },
+        "created_at": "2026-10-06T19:24:47.527478+00:00",
+        "source_stage_id": null
+      },
+      {
+        "id": "b92b13ebf49747a591f670630dd260bf",
+        "branch_id": "d913096320b44c8a9d5a25af69f9dd49",
+        "position": 2,
+        "end_time_text": "2026-10-07",
+        "end_reason": "target",
+        "review": {
+          "issues": [],
+          "audit": {
+            "decisions": {
+              "issues": [],
+              "evidence": "测试：核对事件行动与已提交决定。"
+            },
+            "resources": {
+              "issues": [],
+              "evidence": "测试：核对已知条件与资源来源。"
+            },
+            "state": {
+              "issues": [],
+              "evidence": "测试：核对时间、状态与选项前提。"
+            }
+          }
+        },
+        "created_at": "2026-10-06T19:24:47.916178+00:00",
+        "source_stage_id": null
+      }
+    ]
+  },
+  "decide_stage_detail": {
+    "method": "GET",
+    "path": "/branches/d913096320b44c8a9d5a25af69f9dd49/stages/2",
+    "request": null,
+    "status": 200,
+    "response": {
+      "id": "b92b13ebf49747a591f670630dd260bf",
+      "branch_id": "d913096320b44c8a9d5a25af69f9dd49",
+      "position": 2,
+      "end_time_text": "2026-10-07",
+      "end_reason": "target",
+      "review": {
+        "issues": [],
+        "audit": {
+          "decisions": {
+            "issues": [],
+            "evidence": "测试：核对事件行动与已提交决定。"
+          },
+          "resources": {
+            "issues": [],
+            "evidence": "测试：核对已知条件与资源来源。"
+          },
+          "state": {
+            "issues": [],
+            "evidence": "测试：核对时间、状态与选项前提。"
+          }
+        }
+      },
+      "created_at": "2026-10-06T19:24:47.916178+00:00",
+      "source_stage_id": null,
+      "events": [
+        {
+          "id": "72ace9a239ce43a5a0f21549a3aae4bf",
+          "branch_id": "d913096320b44c8a9d5a25af69f9dd49",
+          "position": 2,
+          "data": {
+            "summary": "按已提交决定安排生活至终点",
+            "mechanism": "执行已确认决定",
+            "time_text": null,
+            "preconditions": [],
+            "fact_ids": [
+              "6606214fb65a4a6889ae803c46da705a"
+            ],
+            "assumptions": [],
+            "state_before": {},
+            "state_after": {},
+            "uncertainty": ""
+          },
+          "status": "validated",
+          "created_at": "2026-10-06T19:24:47.917178+00:00",
+          "stage_id": "b92b13ebf49747a591f670630dd260bf"
+        }
+      ],
+      "choice": null
+    }
+  },
+  "decide_ending": {
+    "method": "GET",
+    "path": "/branches/d913096320b44c8a9d5a25af69f9dd49/ending",
+    "request": null,
+    "status": 200,
+    "response": {
+      "target_date": "2026-10-07",
+      "reached_target": true,
+      "status": "completed",
+      "today": {
+        "id": "e8e0bcd702404620ae29f91d660cb9b8",
+        "position": 3,
+        "kind": "today",
+        "stage_id": "b92b13ebf49747a591f670630dd260bf",
+        "stage_position": 2,
+        "choice_id": null,
+        "version_id": "4640b6c42bb540e886f6c79aac3d1875",
+        "title": "离线测试章节",
+        "revision": 1,
+        "status": "published",
+        "paragraphs": [
+          {
+            "id": "2bbc38a424af49c79d73396d89bfc8be",
+            "version_id": "4640b6c42bb540e886f6c79aac3d1875",
+            "position": 1,
+            "content": "你把要带走的东西拢到桌边，暂时没有收进箱子。下一步去哪里，还没有定。"
+          }
+        ]
+      },
+      "retrospective": {
+        "id": "eec69952384142a6b7b17ad9ebc75190",
+        "position": 4,
+        "kind": "retrospective",
+        "stage_id": "b92b13ebf49747a591f670630dd260bf",
+        "stage_position": 2,
+        "choice_id": null,
+        "version_id": "6ee313ad8bab4ebe852bfd89a6b3f812",
+        "title": "离线测试章节",
+        "revision": 1,
+        "status": "published",
+        "paragraphs": [
+          {
+            "id": "e2f4e5afb76d41c1893b959565cdb031",
+            "version_id": "6ee313ad8bab4ebe852bfd89a6b3f812",
+            "position": 1,
+            "content": "你把要带走的东西拢到桌边，暂时没有收进箱子。下一步去哪里，还没有定。"
+          }
+        ]
+      }
+    }
+  },
+  "decide_task": {
+    "method": "GET",
+    "path": "/branches/d913096320b44c8a9d5a25af69f9dd49/tasks/9e19758be3ff48cf81f34b207e79dba0",
+    "request": null,
+    "status": 200,
+    "response": {
+      "id": "9e19758be3ff48cf81f34b207e79dba0",
+      "kind": "generate_branch",
+      "branch_id": "d913096320b44c8a9d5a25af69f9dd49",
+      "input_data": {
+        "position": 2
+      },
+      "status": "completed",
+      "stage": "completed",
+      "retry_count": 0,
+      "error_code": null,
+      "workflow_version": "2",
+      "created_at": "2026-10-06T19:24:47.788178+00:00",
+      "updated_at": "2026-10-06T19:24:48.137258+00:00",
+      "error_message": null,
+      "waiting_reason": null,
+      "waiting_object_id": null,
+      "retry_of": null,
+      "execution_id": "26ed69f3b96642c192796f41fb2ccb2c"
+    }
+  },
+  "rewrite": {
+    "method": "POST",
+    "path": "/branches/d913096320b44c8a9d5a25af69f9dd49/choices/08b24589e4f046658fb0acaca5f64ddc/fork",
+    "request": {
+      "request_id": "part10-rewrite",
+      "decision": {
+        "option_index": 1
+      }
+    },
+    "status": 202,
+    "response": {
+      "id": "b47d741318974020b77bc5f590bdc24f",
+      "task": {
+        "id": "c076dc0b556e43d586c49480ca80190c",
+        "kind": "generate_branch",
+        "branch_id": "b47d741318974020b77bc5f590bdc24f",
+        "input_data": {
+          "position": 2
+        },
+        "status": "queued",
+        "stage": "pending",
+        "retry_count": 0,
+        "error_code": null,
+        "workflow_version": "2",
+        "created_at": "2026-10-06T19:24:48.358258+00:00",
+        "updated_at": "2026-10-06T19:24:48.358258+00:00",
+        "error_message": null,
+        "waiting_reason": null,
+        "waiting_object_id": null,
+        "retry_of": null,
+        "execution_id": "c3239ee7e5a9486e9d748e7e933351b6"
+      }
+    }
+  },
+  "child_detail": {
+    "method": "GET",
+    "path": "/branches/b47d741318974020b77bc5f590bdc24f",
+    "request": null,
+    "status": 200,
+    "response": {
+      "id": "b47d741318974020b77bc5f590bdc24f",
+      "parent_id": "d913096320b44c8a9d5a25af69f9dd49",
+      "fact_version_id": "515c7693e9b146d1b671483efb1f3647",
+      "fork_fact_id": "6606214fb65a4a6889ae803c46da705a",
+      "alternative": "这次去上海参加9月29日至10月2日的行业交流，活动结束后再决定留沪寻找机会还是回南京。只决定参加，不预设获得工作或搬家。",
+      "target_date": "2026-10-07",
+      "assumptions": [
+        "已订四晚普通旅店，活动后没有长期住处。"
+      ],
+      "status": "completed",
+      "created_at": "2026-10-06T19:24:48.357256+00:00",
+      "updated_at": "2026-10-06T19:24:48.457256+00:00",
+      "fork_choice_id": "08b24589e4f046658fb0acaca5f64ddc",
+      "stage_count": 2,
+      "current_time_text": "2026-10-07",
+      "fork_decision": "回南京继续接单",
+      "facts_outdated": true,
+      "snapshot": {
+        "format_version": 2,
+        "archive_revision": 6,
+        "facts": [
+          {
+            "id": "bce8e8279c124fa48a4ed6cae9285831",
+            "time_text": "2018年夏天",
+            "content": "虚构验收案例：我读完大专，在南京开始做排版工作。（离线润色建议）",
+            "position": 1,
+            "revision": 2,
+            "created_at": "2026-10-06T19:24:46.795522+00:00",
+            "updated_at": "2026-10-06T19:24:46.840668+00:00"
+          },
+          {
+            "id": "6606214fb65a4a6889ae803c46da705a",
+            "time_text": "2026年9月28日",
+            "content": "虚构验收案例：我住在南京，做自由接单的排版工作。收到上海一场四天行业交流的邀请，9月29日开始，10月2日结束，没有任何录用承诺。我原本决定不去。交通费和住宿费需要自己承担，存款金额还没录入。活动后是否留沪找工作尚未决定。",
+            "position": 2,
+            "revision": 1,
+            "created_at": "2026-10-06T19:24:46.787523+00:00",
+            "updated_at": "2026-10-06T19:24:46.787523+00:00"
+          },
+          {
+            "id": "8d67720811cd4ff5965a03195175dae3",
+            "time_text": "2026年10月3日",
+            "content": "虚构验收案例：原人生中我留在南京，在这一天才第一次学习视频剪辑，还没有用它接单。",
+            "position": 3,
+            "revision": 1,
+            "created_at": "2026-10-06T19:24:46.804525+00:00",
+            "updated_at": "2026-10-06T19:24:46.804525+00:00"
+          }
+        ]
+      }
+    }
+  },
+  "chapters": {
+    "method": "GET",
+    "path": "/branches/d913096320b44c8a9d5a25af69f9dd49/chapters",
+    "request": null,
+    "status": 200,
+    "response": [
+      {
+        "id": "543873c949b84bbb818b21c661e4c14a",
+        "position": 1,
+        "kind": "chapter",
+        "stage_id": "ac3afb263fcd4813a6e286b376a66c99",
+        "stage_position": 1,
+        "choice_id": "08b24589e4f046658fb0acaca5f64ddc",
+        "version_id": "c8b43b1ba7924f61bad101b18f7baac0",
+        "title": "离线测试章节",
+        "revision": 1,
+        "status": "published",
+        "paragraphs": [
+          {
+            "id": "120c362aee744931b0483e72f887aec4",
+            "version_id": "c8b43b1ba7924f61bad101b18f7baac0",
+            "position": 1,
+            "content": "你把要带走的东西拢到桌边，暂时没有收进箱子。下一步去哪里，还没有定。"
+          }
+        ]
+      },
+      {
+        "id": "69dcd0ea09964caeadd536c990258ef2",
+        "position": 2,
+        "kind": "chapter",
+        "stage_id": "b92b13ebf49747a591f670630dd260bf",
+        "stage_position": 2,
+        "choice_id": null,
+        "version_id": "204addfaf18446638f86ee874def380c",
+        "title": "离线测试章节",
+        "revision": 1,
+        "status": "published",
+        "paragraphs": [
+          {
+            "id": "04bc7bea0baa44aca48d5960b9cb817d",
+            "version_id": "204addfaf18446638f86ee874def380c",
+            "position": 1,
+            "content": "你把要带走的东西拢到桌边，暂时没有收进箱子。下一步去哪里，还没有定。"
+          }
+        ]
+      }
+    ]
+  },
+  "child_ending": {
+    "method": "GET",
+    "path": "/branches/b47d741318974020b77bc5f590bdc24f/ending",
+    "request": null,
+    "status": 200,
+    "response": {
+      "target_date": "2026-10-07",
+      "reached_target": true,
+      "status": "completed",
+      "today": {
+        "id": "9449b80427b04940b808eb1e4c610bb0",
+        "position": 3,
+        "kind": "today",
+        "stage_id": "778e798a42e44801ae91c4851c043645",
+        "stage_position": 2,
+        "choice_id": null,
+        "version_id": "6c524e567aa9484484f054a747d032a9",
+        "title": "离线测试章节",
+        "revision": 1,
+        "status": "published",
+        "paragraphs": [
+          {
+            "id": "e213f75ec0734fd68abf91ef55990e5e",
+            "version_id": "6c524e567aa9484484f054a747d032a9",
+            "position": 1,
+            "content": "你把要带走的东西拢到桌边，暂时没有收进箱子。下一步去哪里，还没有定。"
+          }
+        ]
+      },
+      "retrospective": {
+        "id": "49704fcc92344f7180def9ad82bba369",
+        "position": 4,
+        "kind": "retrospective",
+        "stage_id": "778e798a42e44801ae91c4851c043645",
+        "stage_position": 2,
+        "choice_id": null,
+        "version_id": "308817bd804f4a4d92e8241c65f5ddc0",
+        "title": "离线测试章节",
+        "revision": 1,
+        "status": "published",
+        "paragraphs": [
+          {
+            "id": "af1786d5321d4fe3b32d489232e569d2",
+            "version_id": "308817bd804f4a4d92e8241c65f5ddc0",
+            "position": 1,
+            "content": "你把要带走的东西拢到桌边，暂时没有收进箱子。下一步去哪里，还没有定。"
+          }
+        ]
+      }
+    }
+  },
+  "reading_position": {
+    "method": "PUT",
+    "path": "/branches/d913096320b44c8a9d5a25af69f9dd49/reading-position",
+    "request": {
+      "paragraph_id": "120c362aee744931b0483e72f887aec4",
+      "char_offset": 3
+    },
+    "status": 200,
+    "response": {
+      "branch_id": "d913096320b44c8a9d5a25af69f9dd49",
+      "paragraph_id": "120c362aee744931b0483e72f887aec4",
+      "char_offset": 3,
+      "updated_at": "2026-10-06T19:24:48.847884+00:00",
+      "version_id": "c8b43b1ba7924f61bad101b18f7baac0",
+      "chapter_id": "543873c949b84bbb818b21c661e4c14a"
+    }
+  },
+  "task_read": {
+    "method": "GET",
+    "path": "/branches/b47d741318974020b77bc5f590bdc24f/tasks/c076dc0b556e43d586c49480ca80190c",
+    "request": null,
+    "status": 200,
+    "response": {
+      "id": "c076dc0b556e43d586c49480ca80190c",
+      "kind": "generate_branch",
+      "branch_id": "b47d741318974020b77bc5f590bdc24f",
+      "input_data": {
+        "position": 2
+      },
+      "status": "completed",
+      "stage": "completed",
+      "retry_count": 0,
+      "error_code": null,
+      "workflow_version": "2",
+      "created_at": "2026-10-06T19:24:48.358258+00:00",
+      "updated_at": "2026-10-06T19:24:48.625256+00:00",
+      "error_message": null,
+      "waiting_reason": null,
+      "waiting_object_id": null,
+      "retry_of": null,
+      "execution_id": "c3239ee7e5a9486e9d748e7e933351b6"
+    }
+  },
+  "sse": {
+    "method": "GET",
+    "path": "/branches/b47d741318974020b77bc5f590bdc24f/tasks/c076dc0b556e43d586c49480ca80190c/events",
+    "status": 200,
+    "response": "id: 28\nevent: task\ndata: {\"id\": \"c076dc0b556e43d586c49480ca80190c\", \"branch_id\": \"b47d741318974020b77bc5f590bdc24f\", \"status\": \"queued\", \"stage\": \"pending\", \"waiting_reason\": null, \"waiting_object_id\": null, \"error_code\": null, \"error_message\": null, \"updated_at\": \"2026-10-06T19:24:48.358258+00:00\"}\n\nid: 29\nevent: task\ndata: {\"id\": \"c076dc0b556e43d586c49480ca80190c\", \"branch_id\": \"b47d741318974020b77bc5f590bdc24f\", \"status\": \"running\", \"stage\": \"simulation\", \"waiting_reason\": null, \"waiting_object_id\": null, \"error_code\": null, \"error_message\": null, \"updated_at\": \"2026-10-06T19:24:48.412258+00:00\"}\n\nid: 30\nevent: task\ndata: {\"id\": \"c076dc0b556e43d586c49480ca80190c\", \"branch_id\": \"b47d741318974020b77bc5f590bdc24f\", \"status\": \"running\", \"stage\": \"narrative\", \"waiting_reason\": null, \"waiting_object_id\": null, \"error_code\": null, \"error_message\": null, \"updated_at\": \"2026-10-06T19:24:48.455256+00:00\"}\n\nid: 31\nevent: stage_published\ndata: {\"position\": 2}\n\nid: 32\nevent: task\ndata: {\"id\": \"c076dc0b556e43d586c49480ca80190c\", \"branch_id\": \"b47d741318974020b77bc5f590bdc24f\", \"status\": \"running\", \"stage\": \"narrative:chapter\", \"waiting_reason\": null, \"waiting_object_id\": null, \"error_code\": null, \"error_message\": null, \"updated_at\": \"2026-10-06T19:24:48.468256+00:00\"}\n\nid: 33\nevent: narrative_published\ndata: {\"position\": 2, \"kind\": \"chapter\", \"version_id\": \"0edeed34201f4a658f2ed54a263962ff\"}\n\nid: 34\nevent: task\ndata: {\"id\": \"c076dc0b556e43d586c49480ca80190c\", \"branch_id\": \"b47d741318974020b77bc5f590bdc24f\", \"status\": \"running\", \"stage\": \"narrative:today\", \"waiting_reason\": null, \"waiting_object_id\": null, \"error_code\": null, \"error_message\": null, \"updated_at\": \"2026-10-06T19:24:48.521256+00:00\"}\n\nid: 35\nevent: narrative_published\ndata: {\"position\": 2, \"kind\": \"today\", \"version_id\": \"6c524e567aa9484484f054a747d032a9\"}\n\nid: 36\nevent: task\ndata: {\"id\": \"c076dc0b556e43d586c49480ca80190c\", \"branch_id\": \"b47d741318974020b77bc5f590bdc24f\", \"status\": \"running\", \"stage\": \"narrative:retrospective\", \"waiting_reason\": null, \"waiting_object_id\": null, \"error_code\": null, \"error_message\": null, \"updated_at\": \"2026-10-06T19:24:48.571257+00:00\"}\n\nid: 37\nevent: narrative_published\ndata: {\"position\": 2, \"kind\": \"retrospective\", \"version_id\": \"308817bd804f4a4d92e8241c65f5ddc0\"}\n\nid: 38\nevent: task\ndata: {\"id\": \"c076dc0b556e43d586c49480ca80190c\", \"branch_id\": \"b47d741318974020b77bc5f590bdc24f\", \"status\": \"completed\", \"stage\": \"completed\", \"waiting_reason\": null, \"waiting_object_id\": null, \"error_code\": null, \"error_message\": null, \"updated_at\": \"2026-10-06T19:24:48.625256+00:00\"}\n\nevent: snapshot\ndata: {\"id\": \"c076dc0b556e43d586c49480ca80190c\", \"branch_id\": \"b47d741318974020b77bc5f590bdc24f\", \"status\": \"completed\", \"stage\": \"completed\", \"waiting_reason\": null, \"waiting_object_id\": null, \"error_code\": null, \"error_message\": null, \"updated_at\": \"2026-10-06T19:24:48.625256+00:00\"}\n\n"
+  },
+  "export_manifest": {
+    "format": "elsewhere",
+    "format_version": 1,
+    "kind": "export",
+    "created_at": "2026-10-06T19:24:48.885701+00:00",
+    "schema_version": 19,
+    "workflow_version": "2",
+    "branch_ids": [
+      "b47d741318974020b77bc5f590bdc24f",
+      "d913096320b44c8a9d5a25af69f9dd49"
+    ],
+    "files": {
+      "archive.json": "0ab82eac0d7570b3014c88c8b3173657340d7a8d657d529f90e753f7d762300c",
+      "workflow.sqlite": "740a6409aee8efb6817f43faf1dca4fb15db3566aaed405c7a2201fcd2f84b59"
+    }
+  },
+  "backup_create": {
+    "method": "POST",
+    "path": "/data/backups",
+    "request": null,
+    "status": 201,
+    "response": {
+      "id": "backup-c6ef8c0c3334428196bab5ef9e55bfe1.zip",
+      "created_at": "2026-10-06T19:24:48.925134+00:00",
+      "size": 31085
+    }
+  },
+  "delete_branch": {
+    "method": "DELETE",
+    "path": "/data/branches/d913096320b44c8a9d5a25af69f9dd49",
+    "request": null,
+    "status": 200,
+    "response": {
+      "deleted_branches": 2,
+      "deleted_tasks": 5
+    }
+  },
+  "clear_data": {
+    "method": "DELETE",
+    "path": "/data",
+    "request": null,
+    "status": 200,
+    "response": {
+      "deleted_branches": 0,
+      "deleted_tasks": 0
+    }
+  }
+}
